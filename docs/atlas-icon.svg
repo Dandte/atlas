@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <radialGradient id="g" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#00d4ff" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#00d4ff" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="b"><feGaussianBlur stdDeviation="2.5"/></filter>
+  </defs>
+  <!-- Glow background -->
+  <circle cx="50" cy="50" r="48" fill="url(#g)"/>
+  <!-- Outer ring -->
+  <circle cx="50" cy="50" r="42" fill="none" stroke="#00d4ff" stroke-width="2.5" stroke-dasharray="6,3" opacity="0.8"/>
+  <!-- Inner ring -->
+  <circle cx="50" cy="50" r="24" fill="none" stroke="#00d4ff" stroke-width="3" opacity="0.9"/>
+  <!-- Core glow -->
+  <circle cx="50" cy="50" r="14" fill="#00d4ff" opacity="0.15"/>
+  <!-- Core border -->
+  <circle cx="50" cy="50" r="11" fill="#0a0a14" stroke="#00d4ff" stroke-width="3"/>
+  <!-- Core bright -->
+  <circle cx="50" cy="50" r="6" fill="#00d4ff" filter="url(#b)"/>
+  <circle cx="50" cy="50" r="5" fill="#00d4ff"/>
+  <!-- Orbital dots — bigger, full opacity -->
+  <circle cx="50" cy="6" r="4.5" fill="#00d4ff"/>
+  <circle cx="88" cy="28" r="4.5" fill="#00ff88"/>
+  <circle cx="88" cy="72" r="4.5" fill="#ffd700"/>
+  <circle cx="50" cy="94" r="4.5" fill="#ff69b4"/>
+  <circle cx="12" cy="72" r="4.5" fill="#aa88ff"/>
+  <circle cx="12" cy="28" r="4.5" fill="#ff6b35"/>
+  <!-- Connection lines — thicker, more visible -->
+  <line x1="50" y1="6" x2="50" y2="26" stroke="#00d4ff" stroke-width="1.5" opacity="0.6"/>
+  <line x1="88" y1="28" x2="68" y2="38" stroke="#00ff88" stroke-width="1.5" opacity="0.6"/>
+  <line x1="88" y1="72" x2="68" y2="62" stroke="#ffd700" stroke-width="1.5" opacity="0.6"/>
+  <line x1="50" y1="94" x2="50" y2="74" stroke="#ff69b4" stroke-width="1.5" opacity="0.6"/>
+  <line x1="12" y1="72" x2="32" y2="62" stroke="#aa88ff" stroke-width="1.5" opacity="0.6"/>
+  <line x1="12" y1="28" x2="32" y2="38" stroke="#ff6b35" stroke-width="1.5" opacity="0.6"/>
+</svg>
