@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ATLAS — Personal Intelligence System</title>
+  <meta name="description" content="Multi-model AI assistant with persistent memory, multi-agent orchestration, 7 channels, 50+ tools, and a neural web interface.">
+  <meta name="theme-color" content="#00d4ff">
+  <meta property="og:title" content="ATLAS — Personal Intelligence System">
+  <meta property="og:description" content="Multi-model AI assistant with persistent memory, multi-agent orchestration, and neural interface.">
+  <meta property="og:type" content="website">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #0a0a14;
+      --surface: #0f0f1e;
+      --border: #1a1a30;
+      --cyan: #00d4ff;
+      --green: #00ff88;
+      --gold: #ffd700;
+      --pink: #ff69b4;
+      --purple: #aa88ff;
+      --orange: #ff6b35;
+      --red: #ff4444;
+      --text: #e0e0e8;
+      --muted: #6a6a80;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+
+    canvas#bg { position: fixed; top: 0; left: 0; z-index: 0; pointer-events: none; }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ── Hero ── */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 60px 24px;
+    }
+
+    .hero-logo {
+      width: 140px;
+      height: 140px;
+      margin-bottom: 32px;
+      animation: float 6s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-12px); }
+    }
+
+    .hero h1 {
+      font-size: clamp(3rem, 8vw, 5.5rem);
+      font-weight: 800;
+      letter-spacing: 12px;
+      background: linear-gradient(135deg, var(--cyan), #88eeff, var(--cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 12px;
+    }
+
+    .hero .tagline {
+      font-size: clamp(1rem, 2.5vw, 1.3rem);
+      color: var(--muted);
+      font-weight: 300;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      margin-bottom: 40px;
+    }
+
+    .hero .description {
+      max-width: 600px;
+      font-size: 1.05rem;
+      color: #8888a0;
+      line-height: 1.8;
+      margin-bottom: 48px;
+    }
+
+    .cta-row {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 32px;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.3s;
+      cursor: pointer;
+      border: none;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--cyan), #0099cc);
+      color: var(--bg);
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,212,255,0.3); }
+
+    .btn-secondary {
+      background: rgba(255,255,255,0.05);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-secondary:hover { border-color: var(--cyan); color: var(--cyan); }
+
+    .scroll-hint {
+      position: absolute;
+      bottom: 32px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: var(--muted);
+      font-size: 0.75rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
+
+    /* ── Sections ── */
+    section {
+      padding: 100px 0;
+    }
+
+    section h2 {
+      font-size: clamp(1.8rem, 4vw, 2.5rem);
+      font-weight: 700;
+      margin-bottom: 16px;
+      text-align: center;
+    }
+
+    section .section-sub {
+      text-align: center;
+      color: var(--muted);
+      font-size: 1rem;
+      margin-bottom: 56px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .accent { color: var(--cyan); }
+
+    /* ── Architecture Diagram ── */
+    .arch-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .arch-layer {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 24px;
+      transition: all 0.3s;
+    }
+
+    .arch-layer:hover {
+      border-color: var(--cyan);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 20px rgba(0,212,255,0.08);
+    }
+
+    .arch-layer h3 {
+      font-size: 0.7rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--cyan);
+      margin-bottom: 8px;
+    }
+
+    .arch-layer p {
+      font-size: 0.9rem;
+      color: #8888a0;
+      line-height: 1.6;
+    }
+
+    .arch-layer .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 12px;
+    }
+
+    .tag {
+      font-size: 0.7rem;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(0,212,255,0.08);
+      color: var(--cyan);
+      border: 1px solid rgba(0,212,255,0.15);
+    }
+
+    .tag.green { background: rgba(0,255,136,0.08); color: var(--green); border-color: rgba(0,255,136,0.15); }
+    .tag.gold { background: rgba(255,215,0,0.08); color: var(--gold); border-color: rgba(255,215,0,0.15); }
+    .tag.purple { background: rgba(170,136,255,0.08); color: var(--purple); border-color: rgba(170,136,255,0.15); }
+    .tag.pink { background: rgba(255,105,180,0.08); color: var(--pink); border-color: rgba(255,105,180,0.15); }
+    .tag.orange { background: rgba(255,107,53,0.08); color: var(--orange); border-color: rgba(255,107,53,0.15); }
+
+    /* ── Features Grid ── */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    .feature-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 28px;
+      transition: all 0.3s;
+    }
+
+    .feature-card:hover {
+      border-color: var(--cyan);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 30px rgba(0,212,255,0.06);
+    }
+
+    .feature-icon {
+      font-size: 1.8rem;
+      margin-bottom: 16px;
+      display: block;
+    }
+
+    .feature-card h3 {
+      font-size: 1.1rem;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+
+    .feature-card p {
+      font-size: 0.88rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    /* ── Channels Strip ── */
+    .channels-strip {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 20px;
+      margin-bottom: 48px;
+    }
+
+    .channel-badge {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      padding: 20px 24px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      min-width: 100px;
+      transition: all 0.3s;
+    }
+
+    .channel-badge:hover {
+      border-color: var(--cyan);
+      transform: translateY(-2px);
+    }
+
+    .channel-badge .ch-icon { font-size: 1.6rem; }
+    .channel-badge .ch-name { font-size: 0.75rem; letter-spacing: 1px; color: var(--muted); text-transform: uppercase; }
+
+    /* ── Stats ── */
+    .stats-row {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 40px;
+      padding: 48px 0;
+    }
+
+    .stat {
+      text-align: center;
+    }
+
+    .stat .num {
+      font-size: clamp(2.5rem, 5vw, 3.5rem);
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--cyan), var(--green));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .stat .label {
+      font-size: 0.75rem;
+      color: var(--muted);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+
+    /* ── Stack ── */
+    .stack-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 12px;
+    }
+
+    .stack-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--muted);
+      transition: all 0.3s;
+    }
+
+    .stack-item:hover { border-color: var(--cyan); color: var(--text); }
+    .stack-item strong { display: block; color: var(--text); margin-bottom: 4px; font-size: 0.9rem; }
+
+    /* ── Footer ── */
+    footer {
+      padding: 48px 0;
+      text-align: center;
+      border-top: 1px solid var(--border);
+    }
+
+    footer p {
+      font-size: 0.8rem;
+      color: #444;
+    }
+
+    footer a {
+      color: var(--cyan);
+      text-decoration: none;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 640px) {
+      .hero { padding: 40px 16px; min-height: 90vh; }
+      section { padding: 60px 0; }
+      .features-grid { grid-template-columns: 1fr; }
+      .channels-strip { gap: 10px; }
+      .channel-badge { min-width: 70px; padding: 14px 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="bg"></canvas>
+
+<!-- ════════ HERO ════════ -->
+<div class="hero">
+  <img src="atlas-logo.svg" alt="ATLAS" class="hero-logo">
+  <h1>ATLAS</h1>
+  <p class="tagline">Personal Intelligence System</p>
+  <p class="description">
+    Un asistente de IA multi-modelo con memoria persistente, orquestacion multi-agente,
+    7 canales de comunicacion, 50+ herramientas, y una interfaz neural en tiempo real.
+  </p>
+  <div class="cta-row">
+    <a href="https://github.com/Dandte/atlas" class="btn btn-primary">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/></svg>
+      GitHub
+    </a>
+    <a href="#architecture" class="btn btn-secondary">Ver Arquitectura</a>
+  </div>
+  <div class="scroll-hint">scroll</div>
+</div>
+
+<div class="container">
+
+  <!-- ════════ STATS ════════ -->
+  <div class="stats-row">
+    <div class="stat"><div class="num">140</div><div class="label">Archivos</div></div>
+    <div class="stat"><div class="num">48K</div><div class="label">Lineas de Codigo</div></div>
+    <div class="stat"><div class="num">50+</div><div class="label">Herramientas</div></div>
+    <div class="stat"><div class="num">7</div><div class="label">Canales</div></div>
+    <div class="stat"><div class="num">8</div><div class="label">Modelos IA</div></div>
+  </div>
+
+  <!-- ════════ ARCHITECTURE ════════ -->
+  <section id="architecture">
+    <h2>Arquitectura <span class="accent">Neural</span></h2>
+    <p class="section-sub">Inspirada en neurociencia. Cada modulo replica una funcion cerebral.</p>
+
+    <div class="arch-grid">
+      <div class="arch-layer">
+        <h3>Channels — Corteza Sensorial</h3>
+        <p>7 canales de comunicacion simultaneos. Cada canal adapta el formato de respuesta automaticamente.</p>
+        <div class="tags">
+          <span class="tag">CLI</span>
+          <span class="tag green">Telegram</span>
+          <span class="tag green">WhatsApp</span>
+          <span class="tag">Web Neural</span>
+          <span class="tag purple">Discord</span>
+          <span class="tag purple">Slack</span>
+          <span class="tag gold">Dashboard</span>
+        </div>
+      </div>
+
+      <div class="arch-layer">
+        <h3>Nexus — Corteza Prefrontal</h3>
+        <p>Coordinador multi-agente con routing inteligente a 3 niveles. 6 agentes especializados con 4 modos de ejecucion.</p>
+        <div class="tags">
+          <span class="tag orange">Business</span>
+          <span class="tag">SysAdmin</span>
+          <span class="tag green">Developer</span>
+          <span class="tag gold">Researcher</span>
+          <span class="tag pink">Creative</span>
+          <span class="tag">General</span>
+        </div>
+      </div>
+
+      <div class="arch-layer">
+        <h3>Cortex — Cognitive Loop</h3>
+        <p>El ciclo cognitivo central: Percibir &rarr; Contextualizar &rarr; Actuar &rarr; Aprender &rarr; Reflexionar. Hasta 15 iteraciones de tool-use por interaccion.</p>
+        <div class="tags">
+          <span class="tag">Session Manager</span>
+          <span class="tag">Planner</span>
+          <span class="tag purple">Reflector</span>
+          <span class="tag">Context Window</span>
+          <span class="tag pink">Emotional Engine</span>
+        </div>
+      </div>
+
+      <div class="arch-layer">
+        <h3>Hippocampus — Memoria</h3>
+        <p>4 sistemas de memoria: episodica (conversaciones), semantica (hechos), vectorial (embeddings), y grafo de conocimiento (entidades).</p>
+        <div class="tags">
+          <span class="tag">Episodic</span>
+          <span class="tag green">Semantic</span>
+          <span class="tag purple">Vector Store</span>
+          <span class="tag gold">Knowledge Graph</span>
+          <span class="tag pink">Thread Memory</span>
+        </div>
+      </div>
+
+      <div class="arch-layer">
+        <h3>Thalamus — Model Router</h3>
+        <p>Enrutador multi-modelo con circuit breaker, retry exponencial, y routing por @prefijo. Soporta 8 proveedores de IA.</p>
+        <div class="tags">
+          <span class="tag">Claude</span>
+          <span class="tag green">GPT</span>
+          <span class="tag orange">Ollama</span>
+          <span class="tag gold">Gemini</span>
+          <span class="tag purple">LMStudio</span>
+          <span class="tag">OpenRouter</span>
+          <span class="tag pink">llama.cpp</span>
+        </div>
+      </div>
+
+      <div class="arch-layer">
+        <h3>Sentinel — Motor Autonomo</h3>
+        <p>Engine proactivo con scheduler, deteccion de anomalias, watchdog, pipelines de automatizacion, webhooks, y notificaciones.</p>
+        <div class="tags">
+          <span class="tag">Scheduler</span>
+          <span class="tag orange">Anomaly Detector</span>
+          <span class="tag">Watchdog</span>
+          <span class="tag green">Pipelines</span>
+          <span class="tag gold">Webhooks</span>
+        </div>
+      </div>
+
+      <div class="arch-layer">
+        <h3>Motor — 50+ Herramientas</h3>
+        <p>Registro dinamico de herramientas con aprobacion, smart retry con fallback, y Skill Forge para crear herramientas por IA.</p>
+        <div class="tags">
+          <span class="tag">Shell</span>
+          <span class="tag green">Web</span>
+          <span class="tag gold">DB</span>
+          <span class="tag purple">IoT</span>
+          <span class="tag orange">Domotica</span>
+          <span class="tag pink">Media</span>
+          <span class="tag">CRM</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════ FEATURES ════════ -->
+  <section id="features">
+    <h2>Capacidades</h2>
+    <p class="section-sub">Todo lo que ATLAS puede hacer, integrado en un solo sistema.</p>
+
+    <div class="features-grid">
+      <div class="feature-card">
+        <span class="feature-icon">&#129504;</span>
+        <h3>Multi-Modelo</h3>
+        <p>Claude, GPT, Ollama, Gemini, LMStudio, OpenRouter, llama.cpp. Cambia entre modelos con un @prefijo.</p>
+      </div>
+
+      <div class="feature-card">
+        <span class="feature-icon">&#128462;</span>
+        <h3>Memoria Persistente</h3>
+        <p>Episodica, semantica, vectorial, knowledge graph. Nunca olvida. Thread memory detecta continuidad conversacional.</p>
+      </div>
+
+      <div class="feature-card">
+        <span class="feature-icon">&#129302;</span>
+        <h3>Multi-Agente</h3>
+        <p>6 agentes especializados coordinados por Nexus. Routing inteligente keyword-pattern-AI con 4 modos de ejecucion.</p>
+      </div>
+
+      <div class="feature-card">
+        <span class="feature-icon">&#128268;</span>
+        <h3>50+ Herramientas</h3>
+        <p>Shell, web, DB, archivos, git, WhatsApp, email, IoT, domotica, CRM, calendario, voz, imagenes, y mas.</p>
+      </div>
+
+      <div class="feature-card">
+        <span class="feature-icon">&#127968;</span>
+        <h3>Domotica</h3>
+        <p>Control de dispositivos Tuya/Smart Life. Descubrimiento automatico, multi-gang, estado en tiempo real, automatizacion por eventos.</p>
+      </div>
+
+      <div class="feature-card">
+        <span class="feature-icon">&#128202;</span>
+        <h3>Dashboard</h3>
+        <p>Panel de administracion React con 7+ paginas: memoria, agentes, skills, tareas, logs, costos, domotica. JWT auth.</p>
+      </div>
+
+      <div class="feature-card">
+        <span class="feature-icon">&#128640;</span>
+        <h3>Proactivo</h3>
+        <p>Briefings matutinos, resumenes diarios, health checks, deteccion de anomalias, notificaciones inteligentes, auto-cleanup.</p>
+      </div>
+
+      <div class="feature-card">
+        <span class="feature-icon">&#128274;</span>
+        <h3>Seguridad</h3>
+        <p>Sistema de aprobacion por canal, audit log con niveles de riesgo, DM pairing, permisos por usuario, JWT auth.</p>
+      </div>
+
+      <div class="feature-card">
+        <span class="feature-icon">&#127912;</span>
+        <h3>Interfaz Neural</h3>
+        <p>Web con canvas animado, particulas, estados emocionales y operativos en tiempo real, soporte de voz, PWA instalable.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════ CHANNELS ════════ -->
+  <section id="channels">
+    <h2>7 <span class="accent">Canales</span></h2>
+    <p class="section-sub">Un cerebro, multiples sentidos. Habla con ATLAS desde cualquier lugar.</p>
+
+    <div class="channels-strip">
+      <div class="channel-badge"><span class="ch-icon">&#128187;</span><span class="ch-name">CLI</span></div>
+      <div class="channel-badge"><span class="ch-icon">&#9992;&#65039;</span><span class="ch-name">Telegram</span></div>
+      <div class="channel-badge"><span class="ch-icon">&#128172;</span><span class="ch-name">WhatsApp</span></div>
+      <div class="channel-badge"><span class="ch-icon">&#127760;</span><span class="ch-name">Web</span></div>
+      <div class="channel-badge"><span class="ch-icon">&#128126;</span><span class="ch-name">Discord</span></div>
+      <div class="channel-badge"><span class="ch-icon">&#128488;&#65039;</span><span class="ch-name">Slack</span></div>
+      <div class="channel-badge"><span class="ch-icon">&#128200;</span><span class="ch-name">Dashboard</span></div>
+    </div>
+  </section>
+
+  <!-- ════════ TECH STACK ════════ -->
+  <section id="stack">
+    <h2>Tech Stack</h2>
+    <p class="section-sub">Tecnologias elegidas por rendimiento, confiabilidad, y control total.</p>
+
+    <div class="stack-grid">
+      <div class="stack-item"><strong>Node.js 22</strong>Runtime</div>
+      <div class="stack-item"><strong>TypeScript 5</strong>Language</div>
+      <div class="stack-item"><strong>SQLite</strong>Database</div>
+      <div class="stack-item"><strong>Express 5</strong>HTTP</div>
+      <div class="stack-item"><strong>Socket.IO</strong>Real-time</div>
+      <div class="stack-item"><strong>BullMQ</strong>Task Queue</div>
+      <div class="stack-item"><strong>grammY</strong>Telegram</div>
+      <div class="stack-item"><strong>Baileys</strong>WhatsApp</div>
+      <div class="stack-item"><strong>discord.js</strong>Discord</div>
+      <div class="stack-item"><strong>Bolt</strong>Slack</div>
+      <div class="stack-item"><strong>Tuya SDK</strong>IoT</div>
+      <div class="stack-item"><strong>Jest 30</strong>Testing</div>
+      <div class="stack-item"><strong>PM2</strong>Process Mgr</div>
+      <div class="stack-item"><strong>Winston</strong>Logging</div>
+    </div>
+  </section>
+
+</div>
+
+<!-- ════════ FOOTER ════════ -->
+<footer>
+  <div class="container">
+    <p style="margin-bottom: 8px; color: #555;">
+      Built with obsessive attention to detail.
+    </p>
+    <p>
+      <a href="https://github.com/Dandte/atlas">GitHub</a>
+    </p>
+  </div>
+</footer>
+
+<!-- ════════ Canvas Background ════════ -->
+<script>
+(function() {
+  const canvas = document.getElementById('bg');
+  const ctx = canvas.getContext('2d');
+  let W, H;
+  const particles = [];
+  const PARTICLE_COUNT = 80;
+
+  function resize() {
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight * 5;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  class Particle {
+    constructor() { this.reset(); }
+    reset() {
+      this.x = Math.random() * W;
+      this.y = Math.random() * H;
+      this.vx = (Math.random() - 0.5) * 0.3;
+      this.vy = (Math.random() - 0.5) * 0.3;
+      this.r = Math.random() * 1.5 + 0.5;
+      this.alpha = Math.random() * 0.3 + 0.1;
+    }
+    update() {
+      this.x += this.vx;
+      this.y += this.vy;
+      if (this.x < 0 || this.x > W) this.vx *= -1;
+      if (this.y < 0 || this.y > H) this.vy *= -1;
+    }
+    draw() {
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(0, 212, 255, ${this.alpha})`;
+      ctx.fill();
+    }
+  }
+
+  for (let i = 0; i < PARTICLE_COUNT; i++) particles.push(new Particle());
+
+  function connectNearby() {
+    for (let i = 0; i < particles.length; i++) {
+      for (let j = i + 1; j < particles.length; j++) {
+        const dx = particles[i].x - particles[j].x;
+        const dy = particles[i].y - particles[j].y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < 150) {
+          ctx.beginPath();
+          ctx.moveTo(particles[i].x, particles[i].y);
+          ctx.lineTo(particles[j].x, particles[j].y);
+          ctx.strokeStyle = `rgba(0, 212, 255, ${0.04 * (1 - dist / 150)})`;
+          ctx.lineWidth = 0.5;
+          ctx.stroke();
+        }
+      }
+    }
+  }
+
+  function animate() {
+    ctx.clearRect(0, 0, W, H);
+    particles.forEach(p => { p.update(); p.draw(); });
+    connectNearby();
+    requestAnimationFrame(animate);
+  }
+  animate();
+})();
+</script>
+
+</body>
+</html>
