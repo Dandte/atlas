@@ -209,6 +209,16 @@ ATLAS follows a **neuroscience-inspired** modular architecture:
 - **Webhook Server** — External event ingestion
 - **Notification Engine** — Rule-based proactive alerts
 
+### Skill Forge (Self-Evolution)
+ATLAS can **create its own tools** from natural language descriptions:
+- **Create** — Describe what you need and ATLAS generates a fully functional TypeScript tool
+- **Improve** — Give feedback and the tool is refined automatically
+- **Auto-Heal** — Failing skills are automatically fixed after repeated errors
+- **Auto-Rollback** — Bad versions are reverted if quality drops below threshold
+- **Meta-Learner** — Analyzes tool usage patterns and suggests new tools to create
+- **Composable Skills** — Generated tools can call other registered tools (chained execution)
+- Managed from chat (`forge_skill` tool) or the Dashboard Skills page
+
 ### Home Automation
 - **Tuya/Smart Life** integration via official API
 - Device discovery, state tracking, multi-gang switch support
