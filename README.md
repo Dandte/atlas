@@ -13,7 +13,7 @@
   <img src="https://img.shields.io/badge/version-1.2-00d4ff?style=flat-square" alt="Version">
   <img src="https://img.shields.io/badge/node-%3E%3D22-339933?style=flat-square&logo=node.js" alt="Node">
   <img src="https://img.shields.io/badge/typescript-5-3178C6?style=flat-square&logo=typescript" alt="TypeScript">
-  <img src="https://img.shields.io/badge/license-UNLICENSED-red?style=flat-square" alt="License">
+  <img src="https://img.shields.io/badge/license-MIT-green?style=flat-square" alt="License">
 </p>
 
 ---
@@ -431,7 +431,7 @@ npm run test:coverage
 
 ## License
 
-This project is **UNLICENSED** — all rights reserved.
+This project is licensed under the [MIT License](LICENSE).
 
 ---
 

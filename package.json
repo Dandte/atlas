@@ -23,7 +23,7 @@
     "atlas"
   ],
   "author": "Jose",
-  "license": "UNLICENSED",
+  "license": "MIT",
   "private": true,
   "dependencies": {
     "@anthropic-ai/sdk": "^0.39.0",
