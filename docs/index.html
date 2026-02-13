@@ -1,691 +1,1238 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ATLAS — Personal Intelligence System</title>
-  <meta name="description" content="Multi-model AI assistant with persistent memory, multi-agent orchestration, 7 channels, 50+ tools, and a neural web interface.">
-  <meta name="theme-color" content="#00d4ff">
-  <meta property="og:title" content="ATLAS — Personal Intelligence System">
-  <meta property="og:description" content="Multi-model AI assistant with persistent memory, multi-agent orchestration, and neural interface.">
-  <meta property="og:type" content="website">
-  <style>
-    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ATLAS — Advanced Thinking & Learning Autonomous System</title>
+    <meta name="description" content="Tu Cerebro Digital Autónomo. Un sistema de IA personal que vive en tu servidor, aprende de ti, y actúa en el mundo real.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+/* ═══════════════════════════════════════════
+   ATLAS LANDING — DESIGN SYSTEM
+   ═══════════════════════════════════════════ */
+:root {
+    --bg-deep: #0a0a14;
+    --bg-surface: #0e0e1e;
+    --bg-card: rgba(12, 20, 40, 0.6);
+    --cyan: #00d4ff;
+    --cyan-dim: rgba(0, 212, 255, 0.08);
+    --cyan-mid: rgba(0, 212, 255, 0.2);
+    --green: #00ff88;
+    --purple: #aa88ff;
+    --orange: #ff6b35;
+    --red: #ff4444;
+    --gold: #ffd700;
+    --pink: #ff69b4;
+    --text: #e2e8f0;
+    --text-dim: #64748b;
+    --border: rgba(0, 212, 255, 0.06);
+    --glass: rgba(10, 16, 32, 0.65);
+    --radius: 16px;
+    --font-display: 'Chakra Petch', sans-serif;
+    --font-body: 'DM Sans', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+}
 
-    :root {
-      --bg: #0a0a14;
-      --surface: #0f0f1e;
-      --border: #1a1a30;
-      --cyan: #00d4ff;
-      --green: #00ff88;
-      --gold: #ffd700;
-      --pink: #ff69b4;
-      --purple: #aa88ff;
-      --orange: #ff6b35;
-      --red: #ff4444;
-      --text: #e0e0e8;
-      --muted: #6a6a80;
-    }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      overflow-x: hidden;
-      line-height: 1.6;
-    }
+html {
+    scroll-behavior: smooth;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0,212,255,0.15) transparent;
+}
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(0,212,255,0.15); border-radius: 3px; }
 
-    canvas#bg { position: fixed; top: 0; left: 0; z-index: 0; pointer-events: none; }
+body {
+    background: var(--bg-deep);
+    color: var(--text);
+    font-family: var(--font-body);
+    line-height: 1.7;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+}
 
-    .container {
-      position: relative;
-      z-index: 1;
-      max-width: 1000px;
-      margin: 0 auto;
-      padding: 0 24px;
-    }
+/* ═══ NAV ═══ */
+nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 0 40px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(10, 10, 20, 0.6);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    transition: all 0.3s;
+}
+nav.scrolled { background: rgba(10, 10, 20, 0.95); }
 
-    /* ── Hero ── */
-    .hero {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      padding: 60px 24px;
-    }
+.nav-logo {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 20px;
+    letter-spacing: 5px;
+    color: var(--cyan);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-shadow: 0 0 10px rgba(0,212,255,0.5);
+}
+.nav-logo .pulse {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 12px var(--green);
+    animation: pulse 2.5s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.8)} }
 
-    .hero-logo {
-      width: 140px;
-      height: 140px;
-      margin-bottom: 32px;
-      animation: float 6s ease-in-out infinite;
-    }
+.nav-links { display: flex; gap: 28px; align-items: center; }
+.nav-links a {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    text-decoration: none;
+    transition: color 0.3s;
+}
+.nav-links a:hover { color: var(--cyan); }
+.nav-cta {
+    background: rgba(0,212,255,0.1) !important;
+    border: 1px solid rgba(0,212,255,0.2) !important;
+    color: var(--cyan) !important;
+    padding: 8px 20px !important;
+    border-radius: 8px !important;
+    transition: all 0.3s !important;
+}
+.nav-cta:hover { background: rgba(0,212,255,0.2) !important; box-shadow: 0 0 20px rgba(0,212,255,0.15) !important; }
+.nav-hamburger {
+    display: none;
+    background: none;
+    border: none;
+    color: var(--cyan);
+    font-size: 22px;
+    cursor: pointer;
+}
 
-    @keyframes float {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-12px); }
-    }
+/* ═══ SECTIONS ═══ */
+section { position: relative; z-index: 2; padding: 120px 40px; }
+.container { max-width: 1200px; margin: 0 auto; }
 
-    .hero h1 {
-      font-size: clamp(3rem, 8vw, 5.5rem);
-      font-weight: 800;
-      letter-spacing: 12px;
-      background: linear-gradient(135deg, var(--cyan), #88eeff, var(--cyan));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      margin-bottom: 12px;
-    }
+/* ═══ REVEAL ═══ */
+.reveal {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 0.8s cubic-bezier(0.16,1,0.3,1), transform 0.8s cubic-bezier(0.16,1,0.3,1);
+}
+.reveal.visible { opacity: 1; transform: translateY(0); }
+.reveal-d1 { transition-delay: 0.1s; }
+.reveal-d2 { transition-delay: 0.2s; }
+.reveal-d3 { transition-delay: 0.3s; }
+.reveal-d4 { transition-delay: 0.4s; }
+.reveal-d5 { transition-delay: 0.5s; }
 
-    .hero .tagline {
-      font-size: clamp(1rem, 2.5vw, 1.3rem);
-      color: var(--muted);
-      font-weight: 300;
-      letter-spacing: 4px;
-      text-transform: uppercase;
-      margin-bottom: 40px;
-    }
+/* ═══ HERO ═══ */
+#hero {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding-top: 64px;
+    position: relative;
+    overflow: hidden;
+}
+#neural-core {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 0;
+}
+.hero-content { max-width: 860px; position: relative; z-index: 5; }
+.hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--cyan-dim);
+    border: 1px solid rgba(0,212,255,0.12);
+    border-radius: 100px;
+    padding: 6px 18px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--cyan);
+    margin-bottom: 32px;
+}
+.hero-badge .bdot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 8px var(--green);
+}
+.hero-title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(64px, 10vw, 140px);
+    line-height: 0.92;
+    letter-spacing: -2px;
+    color: #fff;
+    margin-bottom: 10px;
+}
+.hero-title .glow {
+    background: linear-gradient(135deg, var(--cyan), #80f0ff, var(--cyan));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 0 60px rgba(0,212,255,0.35));
+}
+.hero-sub {
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: clamp(16px, 2.5vw, 26px);
+    color: var(--text-dim);
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    margin-bottom: 28px;
+}
+.hero-desc {
+    font-size: 17px;
+    color: #94a3b8;
+    max-width: 620px;
+    margin: 0 auto 44px;
+    line-height: 1.8;
+}
+.hero-buttons { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 30px;
+    border-radius: 12px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    letter-spacing: 0.5px;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.35s cubic-bezier(0.16,1,0.3,1);
+    border: none;
+}
+.btn-primary {
+    background: var(--cyan);
+    color: #000;
+    font-weight: 500;
+    box-shadow: 0 0 30px rgba(0,212,255,0.2), inset 0 1px 0 rgba(255,255,255,0.2);
+}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 0 50px rgba(0,212,255,0.35); }
+.btn-ghost {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: var(--text);
+}
+.btn-ghost:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.2); transform: translateY(-2px); }
+.hero-tech {
+    margin-top: 56px;
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+.hero-tech span {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    padding: 5px 14px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 6px;
+}
 
-    .hero .description {
-      max-width: 600px;
-      font-size: 1.05rem;
-      color: #8888a0;
-      line-height: 1.8;
-      margin-bottom: 48px;
-    }
+/* ═══ STATE LABEL (hero bottom) ═══ */
+#eye-state-label {
+    position: absolute;
+    bottom: 10%;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 3;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: rgba(0,212,255,0.2);
+    pointer-events: none;
+    white-space: nowrap;
+    transition: color 0.8s;
+}
 
-    .cta-row {
-      display: flex;
-      gap: 16px;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
+/* ═══ SECTION HEADER ═══ */
+.stag {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--cyan);
+    opacity: 0.6;
+    margin-bottom: 12px;
+}
+.stitle {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(30px, 4vw, 48px);
+    color: #fff;
+    margin-bottom: 16px;
+    letter-spacing: -0.5px;
+}
+.sdesc {
+    font-size: 16px;
+    color: var(--text-dim);
+    max-width: 560px;
+    line-height: 1.8;
+}
 
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 14px 32px;
-      border-radius: 12px;
-      font-size: 0.95rem;
-      font-weight: 600;
-      text-decoration: none;
-      transition: all 0.3s;
-      cursor: pointer;
-      border: none;
-    }
+/* ═══ STATS ═══ */
+.stats-bar {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 24px;
+    padding: 48px 0;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+}
+.stat-item { text-align: center; }
+.stat-num {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 42px;
+    color: var(--cyan);
+}
+.stat-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-top: 4px;
+}
 
-    .btn-primary {
-      background: linear-gradient(135deg, var(--cyan), #0099cc);
-      color: var(--bg);
-    }
-    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,212,255,0.3); }
+/* ═══ FEATURE CARDS ═══ */
+.fgrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    gap: 18px;
+    margin-top: 56px;
+}
+.fcard {
+    background: var(--glass);
+    backdrop-filter: blur(16px);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 34px 30px;
+    transition: all 0.4s cubic-bezier(0.16,1,0.3,1);
+    position: relative;
+    overflow: hidden;
+}
+.fcard::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--card-accent, var(--cyan)), transparent);
+    opacity: 0;
+    transition: opacity 0.4s;
+}
+.fcard:hover {
+    border-color: rgba(0,212,255,0.12);
+    transform: translateY(-4px);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3), 0 0 30px rgba(0,229,255,0.04);
+}
+.fcard:hover::before { opacity: 1; }
+.fcard-icon {
+    width: 48px; height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    margin-bottom: 20px;
+}
+.ic-cyan { background: rgba(0,212,255,0.08); }
+.ic-green { background: rgba(0,255,136,0.08); }
+.ic-purple { background: rgba(170,136,255,0.08); }
+.ic-orange { background: rgba(255,107,53,0.08); }
+.ic-red { background: rgba(255,68,68,0.08); }
+.ic-gold { background: rgba(255,215,0,0.08); }
+.ic-pink { background: rgba(255,105,180,0.08); }
 
-    .btn-secondary {
-      background: rgba(255,255,255,0.05);
-      color: var(--text);
-      border: 1px solid var(--border);
-    }
-    .btn-secondary:hover { border-color: var(--cyan); color: var(--cyan); }
+.fcard h3 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 17px;
+    color: #fff;
+    margin-bottom: 10px;
+}
+.fcard p {
+    font-size: 13.5px;
+    color: #7a8baa;
+    line-height: 1.75;
+}
+.ftags { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 16px; }
+.ftags span {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    padding: 3px 9px;
+    border-radius: 4px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.05);
+    color: var(--text-dim);
+}
 
-    .scroll-hint {
-      position: absolute;
-      bottom: 32px;
-      left: 50%;
-      transform: translateX(-50%);
-      color: var(--muted);
-      font-size: 0.75rem;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      animation: pulse 2s ease-in-out infinite;
-    }
+/* ═══ ARCHITECTURE ═══ */
+.arch-core {
+    width: 160px; height: 160px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0,212,255,0.12), transparent 70%);
+    border: 2px solid rgba(0,212,255,0.18);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 20px;
+    color: var(--cyan);
+    letter-spacing: 4px;
+    margin: 0 auto;
+    position: relative;
+    box-shadow: 0 0 60px rgba(0,212,255,0.08);
+}
+.arch-core::after {
+    content: '';
+    position: absolute;
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    border: 1px dashed rgba(0,212,255,0.08);
+    animation: spin 25s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.arch-line {
+    width: 2px; height: 50px;
+    background: linear-gradient(180deg, var(--cyan-mid), transparent);
+    margin: 0 auto;
+}
+.arch-ring {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 14px;
+    max-width: 860px;
+    margin: 0 auto;
+}
+.arch-mod {
+    background: var(--glass);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 22px;
+    text-align: center;
+    min-width: 120px;
+    transition: all 0.3s;
+}
+.arch-mod:hover { border-color: rgba(0,212,255,0.18); box-shadow: 0 0 20px rgba(0,212,255,0.06); }
+.arch-mod .mi { font-size: 22px; margin-bottom: 6px; }
+.arch-mod .mn { font-family: var(--font-display); font-size: 12px; font-weight: 600; color: #fff; letter-spacing: 1px; }
+.arch-mod .ms { font-family: var(--font-mono); font-size: 9px; color: var(--text-dim); margin-top: 3px; }
 
-    @keyframes pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
+/* ═══ LOGO GRID ═══ */
+.lgrid { display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; margin-top: 48px; }
+.litem {
+    background: var(--glass);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 22px 28px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    min-width: 120px;
+    transition: all 0.35s;
+}
+.litem:hover { border-color: rgba(0,212,255,0.15); transform: translateY(-3px); box-shadow: 0 12px 40px rgba(0,0,0,0.3); }
+.litem .li { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; }
+.litem .li img { width: 36px; height: 36px; object-fit: contain; }
+.litem .ln { font-family: var(--font-display); font-size: 13px; font-weight: 500; color: #fff; }
+.litem .ld { font-family: var(--font-mono); font-size: 9px; color: var(--text-dim); }
 
-    /* ── Sections ── */
-    section {
-      padding: 100px 0;
-    }
+/* ═══ DASHBOARD PREVIEW ═══ */
+.dash-preview {
+    margin-top: 48px;
+    background: var(--glass);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 3px;
+    position: relative;
+    overflow: hidden;
+}
+.dash-preview::before {
+    content: '';
+    position: absolute;
+    top: -1px; left: 20%; right: 20%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+}
+.dash-inner {
+    background: rgba(8,14,26,0.9);
+    border-radius: 18px;
+    padding: 28px;
+    display: grid;
+    grid-template-columns: 180px 1fr 1fr;
+    gap: 18px;
+    min-height: 380px;
+}
+.dash-side { display: flex; flex-direction: column; gap: 3px; }
+.dash-ni {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    padding: 7px 12px;
+    border-radius: 6px;
+    color: var(--text-dim);
+}
+.dash-ni.act { background: var(--cyan-dim); color: var(--cyan); }
+.dash-p {
+    background: rgba(255,255,255,0.015);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+}
+.dash-pt {
+    font-family: var(--font-display);
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-dim);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+}
+.dash-num { font-family: var(--font-display); font-weight: 700; font-size: 34px; color: #fff; }
+.dash-chart { margin-top: 16px; height: 110px; display: flex; align-items: flex-end; gap: 5px; }
+.dash-bar {
+    flex: 1;
+    background: linear-gradient(0deg, var(--cyan-dim), rgba(0,212,255,0.22));
+    border-radius: 3px 3px 0 0;
+    transition: height 0.6s cubic-bezier(0.16,1,0.3,1);
+}
 
-    section h2 {
-      font-size: clamp(1.8rem, 4vw, 2.5rem);
-      font-weight: 700;
-      margin-bottom: 16px;
-      text-align: center;
-    }
+/* ═══ CODE WINDOW ═══ */
+.code-window {
+    max-width: 660px;
+    margin: 48px auto 0;
+    background: rgba(0,0,0,0.4);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+}
+.code-top {
+    padding: 12px 18px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,255,255,0.02);
+    border-bottom: 1px solid var(--border);
+}
+.cd { width: 10px; height: 10px; border-radius: 50%; }
+.cd.r { background: #ff5f57; }
+.cd.y { background: #ffbd2e; }
+.cd.g { background: #28ca41; }
+.code-top span { font-family: var(--font-mono); font-size: 11px; color: var(--text-dim); margin-left: 10px; }
+.code-body {
+    padding: 24px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 2;
+    color: #a8c0d8;
+    overflow-x: auto;
+}
+.cm { color: #4a6080; }
+.cc { color: var(--cyan); }
+.cg { color: var(--green); }
+.cs { color: var(--gold); }
 
-    section .section-sub {
-      text-align: center;
-      color: var(--muted);
-      font-size: 1rem;
-      margin-bottom: 56px;
-      max-width: 600px;
-      margin-left: auto;
-      margin-right: auto;
-    }
+/* ═══ FOOTER ═══ */
+footer {
+    position: relative;
+    z-index: 2;
+    border-top: 1px solid var(--border);
+    padding: 56px 40px 36px;
+    background: rgba(10,10,20,0.5);
+}
+.foot-grid {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 48px;
+}
+.foot-brand { font-family: var(--font-display); font-weight: 700; font-size: 20px; letter-spacing: 5px; color: var(--cyan); margin-bottom: 14px; text-shadow: 0 0 10px rgba(0,212,255,0.3); }
+.foot-desc { font-size: 13px; color: var(--text-dim); line-height: 1.7; max-width: 280px; }
+.foot-ct { font-family: var(--font-display); font-size: 11px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: #fff; margin-bottom: 18px; opacity: 0.5; }
+.foot-col a { display: block; font-size: 13px; color: var(--text-dim); text-decoration: none; padding: 4px 0; transition: color 0.2s; }
+.foot-col a:hover { color: var(--cyan); }
+.foot-bottom {
+    max-width: 1200px;
+    margin: 36px auto 0;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-dim);
+}
 
-    .accent { color: var(--cyan); }
-
-    /* ── Architecture Diagram ── */
-    .arch-grid {
-      display: grid;
-      gap: 12px;
-    }
-
-    .arch-layer {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 24px;
-      transition: all 0.3s;
-    }
-
-    .arch-layer:hover {
-      border-color: var(--cyan);
-      transform: translateY(-2px);
-      box-shadow: 0 4px 20px rgba(0,212,255,0.08);
-    }
-
-    .arch-layer h3 {
-      font-size: 0.7rem;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      color: var(--cyan);
-      margin-bottom: 8px;
-    }
-
-    .arch-layer p {
-      font-size: 0.9rem;
-      color: #8888a0;
-      line-height: 1.6;
-    }
-
-    .arch-layer .tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin-top: 12px;
-    }
-
-    .tag {
-      font-size: 0.7rem;
-      padding: 4px 10px;
-      border-radius: 6px;
-      background: rgba(0,212,255,0.08);
-      color: var(--cyan);
-      border: 1px solid rgba(0,212,255,0.15);
-    }
-
-    .tag.green { background: rgba(0,255,136,0.08); color: var(--green); border-color: rgba(0,255,136,0.15); }
-    .tag.gold { background: rgba(255,215,0,0.08); color: var(--gold); border-color: rgba(255,215,0,0.15); }
-    .tag.purple { background: rgba(170,136,255,0.08); color: var(--purple); border-color: rgba(170,136,255,0.15); }
-    .tag.pink { background: rgba(255,105,180,0.08); color: var(--pink); border-color: rgba(255,105,180,0.15); }
-    .tag.orange { background: rgba(255,107,53,0.08); color: var(--orange); border-color: rgba(255,107,53,0.15); }
-
-    /* ── Features Grid ── */
-    .features-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 20px;
-    }
-
-    .feature-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 28px;
-      transition: all 0.3s;
-    }
-
-    .feature-card:hover {
-      border-color: var(--cyan);
-      transform: translateY(-3px);
-      box-shadow: 0 8px 30px rgba(0,212,255,0.06);
-    }
-
-    .feature-icon {
-      font-size: 1.8rem;
-      margin-bottom: 16px;
-      display: block;
-    }
-
-    .feature-card h3 {
-      font-size: 1.1rem;
-      margin-bottom: 8px;
-      color: var(--text);
-    }
-
-    .feature-card p {
-      font-size: 0.88rem;
-      color: var(--muted);
-      line-height: 1.6;
-    }
-
-    /* ── Channels Strip ── */
-    .channels-strip {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 20px;
-      margin-bottom: 48px;
-    }
-
-    .channel-badge {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
-      padding: 20px 24px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      min-width: 100px;
-      transition: all 0.3s;
-    }
-
-    .channel-badge:hover {
-      border-color: var(--cyan);
-      transform: translateY(-2px);
-    }
-
-    .channel-badge .ch-icon { font-size: 1.6rem; }
-    .channel-badge .ch-name { font-size: 0.75rem; letter-spacing: 1px; color: var(--muted); text-transform: uppercase; }
-
-    /* ── Stats ── */
-    .stats-row {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 40px;
-      padding: 48px 0;
-    }
-
-    .stat {
-      text-align: center;
-    }
-
-    .stat .num {
-      font-size: clamp(2.5rem, 5vw, 3.5rem);
-      font-weight: 800;
-      background: linear-gradient(135deg, var(--cyan), var(--green));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    .stat .label {
-      font-size: 0.75rem;
-      color: var(--muted);
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      margin-top: 4px;
-    }
-
-    /* ── Stack ── */
-    .stack-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-      gap: 12px;
-    }
-
-    .stack-item {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 16px;
-      text-align: center;
-      font-size: 0.85rem;
-      color: var(--muted);
-      transition: all 0.3s;
-    }
-
-    .stack-item:hover { border-color: var(--cyan); color: var(--text); }
-    .stack-item strong { display: block; color: var(--text); margin-bottom: 4px; font-size: 0.9rem; }
-
-    /* ── Footer ── */
-    footer {
-      padding: 48px 0;
-      text-align: center;
-      border-top: 1px solid var(--border);
-    }
-
-    footer p {
-      font-size: 0.8rem;
-      color: #444;
-    }
-
-    footer a {
-      color: var(--cyan);
-      text-decoration: none;
-    }
-
-    /* ── Responsive ── */
-    @media (max-width: 640px) {
-      .hero { padding: 40px 16px; min-height: 90vh; }
-      section { padding: 60px 0; }
-      .features-grid { grid-template-columns: 1fr; }
-      .channels-strip { gap: 10px; }
-      .channel-badge { min-width: 70px; padding: 14px 16px; }
-    }
-  </style>
+/* ═══ RESPONSIVE ═══ */
+@media(max-width:1024px){
+    .dash-inner{grid-template-columns:1fr;}
+    .dash-side{flex-direction:row;flex-wrap:wrap;}
+    .foot-grid{grid-template-columns:1fr 1fr;gap:36px;}
+}
+@media(max-width:768px){
+    section{padding:80px 20px;}
+    nav{padding:0 20px;}
+    .nav-links{display:none;position:fixed;top:64px;left:0;right:0;background:rgba(10,10,20,0.97);flex-direction:column;padding:20px;gap:16px;border-bottom:1px solid var(--border);}
+    .nav-links.open{display:flex;}
+    .nav-hamburger{display:block;}
+    .fgrid{grid-template-columns:1fr;}
+    .stats-bar{grid-template-columns:1fr 1fr;}
+    .foot-grid{grid-template-columns:1fr;gap:28px;}
+    .foot-bottom{flex-direction:column;gap:10px;text-align:center;}
+    .arch-ring{gap:10px;}
+    .arch-mod{min-width:100px;padding:12px 14px;}
+}
+@media(max-width:480px){
+    .litem{min-width:90px;padding:16px 18px;}
+    .hero-buttons{flex-direction:column;align-items:center;}
+    .hero-buttons .btn{width:100%;justify-content:center;max-width:260px;}
+}
+    </style>
 </head>
 <body>
 
-<canvas id="bg"></canvas>
-
-<!-- ════════ HERO ════════ -->
-<div class="hero">
-  <img src="atlas-logo.svg" alt="ATLAS" class="hero-logo">
-  <h1>ATLAS</h1>
-  <p class="tagline">Personal Intelligence System</p>
-  <p class="description">
-    Un asistente de IA multi-modelo con memoria persistente, orquestacion multi-agente,
-    7 canales de comunicacion, 50+ herramientas, y una interfaz neural en tiempo real.
-  </p>
-  <div class="cta-row">
-    <a href="https://github.com/Dandte/atlas" class="btn btn-primary">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/></svg>
-      GitHub
-    </a>
-    <a href="#architecture" class="btn btn-secondary">Ver Arquitectura</a>
-  </div>
-  <div class="scroll-hint">scroll</div>
-</div>
-
-<div class="container">
-
-  <!-- ════════ STATS ════════ -->
-  <div class="stats-row">
-    <div class="stat"><div class="num">140</div><div class="label">Archivos</div></div>
-    <div class="stat"><div class="num">48K</div><div class="label">Lineas de Codigo</div></div>
-    <div class="stat"><div class="num">50+</div><div class="label">Herramientas</div></div>
-    <div class="stat"><div class="num">7</div><div class="label">Canales</div></div>
-    <div class="stat"><div class="num">8</div><div class="label">Modelos IA</div></div>
-  </div>
-
-  <!-- ════════ ARCHITECTURE ════════ -->
-  <section id="architecture">
-    <h2>Arquitectura <span class="accent">Neural</span></h2>
-    <p class="section-sub">Inspirada en neurociencia. Cada modulo replica una funcion cerebral.</p>
-
-    <div class="arch-grid">
-      <div class="arch-layer">
-        <h3>Channels — Corteza Sensorial</h3>
-        <p>7 canales de comunicacion simultaneos. Cada canal adapta el formato de respuesta automaticamente.</p>
-        <div class="tags">
-          <span class="tag">CLI</span>
-          <span class="tag green">Telegram</span>
-          <span class="tag green">WhatsApp</span>
-          <span class="tag">Web Neural</span>
-          <span class="tag purple">Discord</span>
-          <span class="tag purple">Slack</span>
-          <span class="tag gold">Dashboard</span>
-        </div>
-      </div>
-
-      <div class="arch-layer">
-        <h3>Nexus — Corteza Prefrontal</h3>
-        <p>Coordinador multi-agente con routing inteligente a 3 niveles. 6 agentes especializados con 4 modos de ejecucion.</p>
-        <div class="tags">
-          <span class="tag orange">Business</span>
-          <span class="tag">SysAdmin</span>
-          <span class="tag green">Developer</span>
-          <span class="tag gold">Researcher</span>
-          <span class="tag pink">Creative</span>
-          <span class="tag">General</span>
-        </div>
-      </div>
-
-      <div class="arch-layer">
-        <h3>Cortex — Cognitive Loop</h3>
-        <p>El ciclo cognitivo central: Percibir &rarr; Contextualizar &rarr; Actuar &rarr; Aprender &rarr; Reflexionar. Hasta 15 iteraciones de tool-use por interaccion.</p>
-        <div class="tags">
-          <span class="tag">Session Manager</span>
-          <span class="tag">Planner</span>
-          <span class="tag purple">Reflector</span>
-          <span class="tag">Context Window</span>
-          <span class="tag pink">Emotional Engine</span>
-        </div>
-      </div>
-
-      <div class="arch-layer">
-        <h3>Hippocampus — Memoria</h3>
-        <p>4 sistemas de memoria: episodica (conversaciones), semantica (hechos), vectorial (embeddings), y grafo de conocimiento (entidades).</p>
-        <div class="tags">
-          <span class="tag">Episodic</span>
-          <span class="tag green">Semantic</span>
-          <span class="tag purple">Vector Store</span>
-          <span class="tag gold">Knowledge Graph</span>
-          <span class="tag pink">Thread Memory</span>
-        </div>
-      </div>
-
-      <div class="arch-layer">
-        <h3>Thalamus — Model Router</h3>
-        <p>Enrutador multi-modelo con circuit breaker, retry exponencial, y routing por @prefijo. Soporta 8 proveedores de IA.</p>
-        <div class="tags">
-          <span class="tag">Claude</span>
-          <span class="tag green">GPT</span>
-          <span class="tag orange">Ollama</span>
-          <span class="tag gold">Gemini</span>
-          <span class="tag purple">LMStudio</span>
-          <span class="tag">OpenRouter</span>
-          <span class="tag pink">llama.cpp</span>
-        </div>
-      </div>
-
-      <div class="arch-layer">
-        <h3>Sentinel — Motor Autonomo</h3>
-        <p>Engine proactivo con scheduler, deteccion de anomalias, watchdog, pipelines de automatizacion, webhooks, y notificaciones.</p>
-        <div class="tags">
-          <span class="tag">Scheduler</span>
-          <span class="tag orange">Anomaly Detector</span>
-          <span class="tag">Watchdog</span>
-          <span class="tag green">Pipelines</span>
-          <span class="tag gold">Webhooks</span>
-        </div>
-      </div>
-
-      <div class="arch-layer">
-        <h3>Motor — 50+ Herramientas</h3>
-        <p>Registro dinamico de herramientas con aprobacion, smart retry con fallback, y Skill Forge para crear herramientas por IA.</p>
-        <div class="tags">
-          <span class="tag">Shell</span>
-          <span class="tag green">Web</span>
-          <span class="tag gold">DB</span>
-          <span class="tag purple">IoT</span>
-          <span class="tag orange">Domotica</span>
-          <span class="tag pink">Media</span>
-          <span class="tag">CRM</span>
-        </div>
-      </div>
+<!-- ═══ NAV ═══ -->
+<nav id="nav">
+    <a href="#" class="nav-logo"><span class="pulse"></span>ATLAS</a>
+    <div class="nav-links" id="navLinks">
+        <a href="#features">Features</a>
+        <a href="#architecture">Arquitectura</a>
+        <a href="#providers">Modelos</a>
+        <a href="#channels">Canales</a>
+        <a href="#dashboard">Dashboard</a>
+        <a href="#install">Instalar</a>
+        <a href="https://github.com/Dandte/atlas" class="nav-cta">★ GitHub</a>
     </div>
-  </section>
+    <button class="nav-hamburger" id="menuBtn">☰</button>
+</nav>
 
-  <!-- ════════ FEATURES ════════ -->
-  <section id="features">
-    <h2>Capacidades</h2>
-    <p class="section-sub">Todo lo que ATLAS puede hacer, integrado en un solo sistema.</p>
-
-    <div class="features-grid">
-      <div class="feature-card">
-        <span class="feature-icon">&#129504;</span>
-        <h3>Multi-Modelo</h3>
-        <p>Claude, GPT, Ollama, Gemini, LMStudio, OpenRouter, llama.cpp. Cambia entre modelos con un @prefijo.</p>
-      </div>
-
-      <div class="feature-card">
-        <span class="feature-icon">&#128462;</span>
-        <h3>Memoria Persistente</h3>
-        <p>Episodica, semantica, vectorial, knowledge graph. Nunca olvida. Thread memory detecta continuidad conversacional.</p>
-      </div>
-
-      <div class="feature-card">
-        <span class="feature-icon">&#129302;</span>
-        <h3>Multi-Agente</h3>
-        <p>6 agentes especializados coordinados por Nexus. Routing inteligente keyword-pattern-AI con 4 modos de ejecucion.</p>
-      </div>
-
-      <div class="feature-card">
-        <span class="feature-icon">&#128268;</span>
-        <h3>50+ Herramientas</h3>
-        <p>Shell, web, DB, archivos, git, WhatsApp, email, IoT, domotica, CRM, calendario, voz, imagenes, y mas.</p>
-      </div>
-
-      <div class="feature-card">
-        <span class="feature-icon">&#127968;</span>
-        <h3>Domotica</h3>
-        <p>Control de dispositivos Tuya/Smart Life. Descubrimiento automatico, multi-gang, estado en tiempo real, automatizacion por eventos.</p>
-      </div>
-
-      <div class="feature-card">
-        <span class="feature-icon">&#128202;</span>
-        <h3>Dashboard</h3>
-        <p>Panel de administracion React con 7+ paginas: memoria, agentes, skills, tareas, logs, costos, domotica. JWT auth.</p>
-      </div>
-
-      <div class="feature-card">
-        <span class="feature-icon">&#128640;</span>
-        <h3>Proactivo</h3>
-        <p>Briefings matutinos, resumenes diarios, health checks, deteccion de anomalias, notificaciones inteligentes, auto-cleanup.</p>
-      </div>
-
-      <div class="feature-card">
-        <span class="feature-icon">&#128274;</span>
-        <h3>Seguridad</h3>
-        <p>Sistema de aprobacion por canal, audit log con niveles de riesgo, DM pairing, permisos por usuario, JWT auth.</p>
-      </div>
-
-      <div class="feature-card">
-        <span class="feature-icon">&#127912;</span>
-        <h3>Interfaz Neural</h3>
-        <p>Web con canvas animado, particulas, estados emocionales y operativos en tiempo real, soporte de voz, PWA instalable.</p>
-      </div>
+<!-- ═══ HERO + NEURAL CORE ═══ -->
+<section id="hero">
+    <canvas id="neural-core"></canvas>
+    <div id="eye-state-label">Neural Core — Active</div>
+    <div class="hero-content">
+        <div class="hero-badge reveal"><span class="bdot"></span>Open Source · Self-Hosted · Privado</div>
+        <h1 class="hero-title reveal reveal-d1"><span class="glow">ATLAS</span></h1>
+        <p class="hero-sub reveal reveal-d2">Tu Cerebro Digital Autónomo</p>
+        <p class="hero-desc reveal reveal-d3">
+            Un sistema de inteligencia personal que vive en tu servidor, aprende de ti con el tiempo,
+            controla tus dispositivos, gestiona tu negocio y se conecta a todos tus canales.
+            No es un chatbot — es un cerebro digital completo con personalidad, emociones y memoria permanente.
+        </p>
+        <div class="hero-buttons reveal reveal-d4">
+            <a href="https://github.com/Dandte/atlas" class="btn btn-primary">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+                GitHub
+            </a>
+            <a href="#install" class="btn btn-ghost">Empezar →</a>
+            <a href="#features" class="btn btn-ghost">Explorar</a>
+        </div>
+        <div class="hero-tech reveal reveal-d5">
+            <span>Node.js 22</span>
+            <span>TypeScript 5</span>
+            <span>SQLite</span>
+            <span>Anthropic SDK</span>
+            <span>Self-Hosted</span>
+        </div>
     </div>
-  </section>
+</section>
 
-  <!-- ════════ CHANNELS ════════ -->
-  <section id="channels">
-    <h2>7 <span class="accent">Canales</span></h2>
-    <p class="section-sub">Un cerebro, multiples sentidos. Habla con ATLAS desde cualquier lugar.</p>
-
-    <div class="channels-strip">
-      <div class="channel-badge"><span class="ch-icon">&#128187;</span><span class="ch-name">CLI</span></div>
-      <div class="channel-badge"><span class="ch-icon">&#9992;&#65039;</span><span class="ch-name">Telegram</span></div>
-      <div class="channel-badge"><span class="ch-icon">&#128172;</span><span class="ch-name">WhatsApp</span></div>
-      <div class="channel-badge"><span class="ch-icon">&#127760;</span><span class="ch-name">Web</span></div>
-      <div class="channel-badge"><span class="ch-icon">&#128126;</span><span class="ch-name">Discord</span></div>
-      <div class="channel-badge"><span class="ch-icon">&#128488;&#65039;</span><span class="ch-name">Slack</span></div>
-      <div class="channel-badge"><span class="ch-icon">&#128200;</span><span class="ch-name">Dashboard</span></div>
+<!-- ═══ STATS ═══ -->
+<section style="padding-top:0;padding-bottom:0;">
+    <div class="container">
+        <div class="stats-bar reveal">
+            <div class="stat-item"><div class="stat-num">7+</div><div class="stat-label">Proveedores IA</div></div>
+            <div class="stat-item"><div class="stat-num">6</div><div class="stat-label">Canales</div></div>
+            <div class="stat-item"><div class="stat-num">30+</div><div class="stat-label">Herramientas</div></div>
+            <div class="stat-item"><div class="stat-num">6</div><div class="stat-label">Agentes</div></div>
+            <div class="stat-item"><div class="stat-num">25+</div><div class="stat-label">Páginas Dashboard</div></div>
+        </div>
     </div>
-  </section>
+</section>
 
-  <!-- ════════ TECH STACK ════════ -->
-  <section id="stack">
-    <h2>Tech Stack</h2>
-    <p class="section-sub">Tecnologias elegidas por rendimiento, confiabilidad, y control total.</p>
+<!-- ═══ FEATURES ═══ -->
+<section id="features">
+    <div class="container">
+        <div class="stag reveal">Capacidades</div>
+        <h2 class="stitle reveal reveal-d1">Todo lo que necesitas.<br>Nada que no controles.</h2>
+        <p class="sdesc reveal reveal-d2">Cada módulo funciona autónomo y en conjunto. Modular, extensible, y completamente tuyo.</p>
 
-    <div class="stack-grid">
-      <div class="stack-item"><strong>Node.js 22</strong>Runtime</div>
-      <div class="stack-item"><strong>TypeScript 5</strong>Language</div>
-      <div class="stack-item"><strong>SQLite</strong>Database</div>
-      <div class="stack-item"><strong>Express 5</strong>HTTP</div>
-      <div class="stack-item"><strong>Socket.IO</strong>Real-time</div>
-      <div class="stack-item"><strong>BullMQ</strong>Task Queue</div>
-      <div class="stack-item"><strong>grammY</strong>Telegram</div>
-      <div class="stack-item"><strong>Baileys</strong>WhatsApp</div>
-      <div class="stack-item"><strong>discord.js</strong>Discord</div>
-      <div class="stack-item"><strong>Bolt</strong>Slack</div>
-      <div class="stack-item"><strong>Tuya SDK</strong>IoT</div>
-      <div class="stack-item"><strong>Jest 30</strong>Testing</div>
-      <div class="stack-item"><strong>PM2</strong>Process Mgr</div>
-      <div class="stack-item"><strong>Winston</strong>Logging</div>
+        <div class="fgrid">
+            <div class="fcard reveal" style="--card-accent:#00d4ff">
+                <div class="fcard-icon ic-cyan">🧠</div>
+                <h3>Inteligencia Multi-Modelo</h3>
+                <p>7 proveedores de IA con cambio instantáneo usando @prefijos. Fallback automático entre modelos, circuit breaker y retry con backoff exponencial.</p>
+                <div class="ftags"><span>Claude</span><span>GPT</span><span>Gemini</span><span>Ollama</span><span>LM Studio</span><span>OpenRouter</span></div>
+            </div>
+            <div class="fcard reveal reveal-d1" style="--card-accent:#00ff88">
+                <div class="fcard-icon ic-green">💬</div>
+                <h3>Omnicanal</h3>
+                <p>Un cerebro, todos los canales. CLI, Web, Telegram, WhatsApp, Discord y Slack. Sesión unificada sin importar por dónde hables.</p>
+                <div class="ftags"><span>Baileys</span><span>discord.js</span><span>Bolt</span><span>grammY</span><span>Socket.IO</span></div>
+            </div>
+            <div class="fcard reveal reveal-d2" style="--card-accent:#aa88ff">
+                <div class="fcard-icon ic-purple">🧬</div>
+                <h3>Memoria Permanente</h3>
+                <p>Memoria episódica, semántica y de trabajo. Reflexión automática, RAG con indexación de documentos, y Knowledge Graph.</p>
+                <div class="ftags"><span>Vectorial</span><span>RAG</span><span>Knowledge Graph</span><span>Reflexión</span></div>
+            </div>
+            <div class="fcard reveal" style="--card-accent:#ff6b35">
+                <div class="fcard-icon ic-orange">🤖</div>
+                <h3>Multi-Agente (Nexus)</h3>
+                <p>6 agentes especializados con enrutamiento inteligente. Ejecución paralela, secuencial o por consenso. Agentes custom con sub-procesos.</p>
+                <div class="ftags"><span>Negocios</span><span>SysAdmin</span><span>Developer</span><span>Research</span><span>Creativo</span></div>
+            </div>
+            <div class="fcard reveal reveal-d1" style="--card-accent:#ff4444">
+                <div class="fcard-icon ic-red">⚡</div>
+                <h3>Skill Forge — Auto-Evolución</h3>
+                <p>ATLAS crea sus propias herramientas desde lenguaje natural. Auto-heal, auto-rollback, meta-learner que detecta patrones y sugiere skills.</p>
+                <div class="ftags"><span>Auto-Heal</span><span>Composable</span><span>Meta-Learn</span><span>Rollback</span></div>
+            </div>
+            <div class="fcard reveal reveal-d2" style="--card-accent:#ffd700">
+                <div class="fcard-icon ic-gold">🛡️</div>
+                <h3>Sentinel — Motor Proactivo</h3>
+                <p>Scheduler BullMQ/Redis, briefing matutino, health checks, detección de anomalías, watchdog auto-fix, y pipelines automatizadas.</p>
+                <div class="ftags"><span>Scheduler</span><span>Health Check</span><span>Anomalías</span><span>Pipelines</span></div>
+            </div>
+            <div class="fcard reveal" style="--card-accent:#00d4ff">
+                <div class="fcard-icon ic-cyan">🔧</div>
+                <h3>30+ Herramientas</h3>
+                <p>Shell, Git, web search, MySQL, WhatsApp control, Spotify, domótica Tuya, n8n, TTS/STT, notas, recordatorios, clima, y más.</p>
+                <div class="ftags"><span>Shell</span><span>Git</span><span>MySQL</span><span>Tuya</span><span>n8n</span><span>Whisper</span></div>
+            </div>
+            <div class="fcard reveal reveal-d1" style="--card-accent:#00ff88">
+                <div class="fcard-icon ic-green">🎙️</div>
+                <h3>Modo Voz</h3>
+                <p>Audio → Whisper → proceso → voz sintetizada. Soporte OpenAI Whisper, Groq gratis, OpenAI TTS y ElevenLabs premium.</p>
+                <div class="ftags"><span>Whisper</span><span>ElevenLabs</span><span>OpenAI TTS</span><span>Groq</span></div>
+            </div>
+            <div class="fcard reveal reveal-d2" style="--card-accent:#ff69b4">
+                <div class="fcard-icon ic-pink">🏠</div>
+                <h3>Domótica</h3>
+                <p>Control total de dispositivos Tuya/Smart Life. 10 acciones, multi-gang, monitoreo, detección de cambios y dashboard visual.</p>
+                <div class="ftags"><span>Tuya</span><span>Smart Life</span><span>Multi-Gang</span><span>Escenas</span></div>
+            </div>
+        </div>
     </div>
-  </section>
+</section>
 
-</div>
+<!-- ═══ ARCHITECTURE ═══ -->
+<section id="architecture">
+    <div class="container" style="text-align:center;">
+        <div class="stag reveal">Arquitectura</div>
+        <h2 class="stitle reveal reveal-d1">Inspirado en el cerebro humano</h2>
+        <p class="sdesc reveal reveal-d2" style="margin:0 auto 48px;">Cada módulo tiene una función cognitiva específica, operando como un sistema nervioso artificial.</p>
 
-<!-- ════════ FOOTER ════════ -->
+        <div class="reveal reveal-d3">
+            <div class="arch-core">CORTEX</div>
+            <div class="arch-line"></div>
+            <div class="arch-ring">
+                <div class="arch-mod"><div class="mi">🧠</div><div class="mn">Thalamus</div><div class="ms">Router de entrada</div></div>
+                <div class="arch-mod"><div class="mi">💾</div><div class="mn">Hippocampus</div><div class="ms">Memoria</div></div>
+                <div class="arch-mod"><div class="mi">⚡</div><div class="mn">Motor</div><div class="ms">Herramientas</div></div>
+                <div class="arch-mod"><div class="mi">🤖</div><div class="mn">Nexus</div><div class="ms">Multi-Agente</div></div>
+                <div class="arch-mod"><div class="mi">📡</div><div class="mn">Channels</div><div class="ms">Omnicanal</div></div>
+                <div class="arch-mod"><div class="mi">🛡️</div><div class="mn">Sentinel</div><div class="ms">Proactivo</div></div>
+                <div class="arch-mod"><div class="mi">🔧</div><div class="mn">Forge</div><div class="ms">Auto-Evolución</div></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══ PROVIDERS ═══ -->
+<section id="providers">
+    <div class="container" style="text-align:center;">
+        <div class="stag reveal">Modelos</div>
+        <h2 class="stitle reveal reveal-d1">7 proveedores. 200+ modelos.</h2>
+        <p class="sdesc reveal reveal-d2" style="margin:0 auto;">Desde APIs cloud hasta modelos locales en tu GPU. Cambia entre ellos con un @prefijo.</p>
+        <div class="lgrid reveal reveal-d3">
+            <div class="litem"><div class="li"><img src="https://raw.githubusercontent.com/lobehub/lobe-icons/refs/heads/master/packages/static-png/light/claude-color.png" alt="Claude"></div><div class="ln">Claude</div><div class="ld">Anthropic</div></div>
+            <div class="litem"><div class="li"><img src="https://raw.githubusercontent.com/lobehub/lobe-icons/refs/heads/master/packages/static-png/dark/openai.png" alt="OpenAI"></div><div class="ln">GPT</div><div class="ld">OpenAI</div></div>
+            <div class="litem"><div class="li"><img src="https://raw.githubusercontent.com/lobehub/lobe-icons/refs/heads/master/packages/static-png/light/gemini-color.png" alt="Gemini"></div><div class="ln">Gemini</div><div class="ld">Google</div></div>
+            <div class="litem"><div class="li"><img src="https://raw.githubusercontent.com/lobehub/lobe-icons/refs/heads/master/packages/static-png/dark/ollama.png" alt="Ollama"></div><div class="ln">Ollama</div><div class="ld">Local</div></div>
+            <div class="litem"><div class="li"><img src="https://raw.githubusercontent.com/lobehub/lobe-icons/refs/heads/master/packages/static-png/dark/lmstudio.png" alt="LM Studio"></div><div class="ln">LM Studio</div><div class="ld">Local GUI</div></div>
+            <div class="litem"><div class="li"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M8 4L4 12l4 8" stroke="#FF6B35" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M16 4l4 8-4 8" stroke="#FF6B35" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M14 4l-4 16" stroke="#FF6B35" stroke-width="1.5" stroke-linecap="round"/>
+</svg></div><div class="ln">llama.cpp</div><div class="ld">GGUF</div></div>
+            <div class="litem"><div class="li"><img src="https://svgl.app/library/openrouter_dark.svg" alt="OpenRouter"></div><div class="ln">OpenRouter</div><div class="ld">200+ modelos</div></div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══ CHANNELS ═══ -->
+<section id="channels">
+    <div class="container" style="text-align:center;">
+        <div class="stag reveal">Canales</div>
+        <h2 class="stitle reveal reveal-d1">Un cerebro. Todos los canales.</h2>
+        <p class="sdesc reveal reveal-d2" style="margin:0 auto;">Sesión unificada — una sola conversación sin importar por dónde hables con ATLAS.</p>
+        <div class="lgrid reveal reveal-d3">
+            <div class="litem"><div class="li"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="#00FF88">
+  <path d="M0 3a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm9.5 5.5h-3a.5.5 0 0 0 0 1h3a.5.5 0 0 0 0-1m-6.354-.354a.5.5 0 1 0 .708.708l2-2a.5.5 0 0 0 0-.708l-2-2a.5.5 0 1 0-.708.708L4.793 6.5z"/>
+</svg></div><div class="ln">CLI</div><div class="ld">Terminal nativo</div></div>
+            <div class="litem"><div class="li"><img src="https://cdn.simpleicons.org/socketdotio/00D4FF" alt="Web Chat"></div><div class="ln">Web Chat</div><div class="ld">Neural UI</div></div>
+            <div class="litem"><div class="li"><img src="https://cdn.simpleicons.org/telegram/26A5E4" alt="Telegram"></div><div class="ln">Telegram</div><div class="ld">grammY + Voz</div></div>
+            <div class="litem"><div class="li"><img src="https://cdn.simpleicons.org/whatsapp/25D366" alt="WhatsApp"></div><div class="ln">WhatsApp</div><div class="ld">Baileys multi-inst</div></div>
+            <div class="litem"><div class="li"><img src="https://cdn.simpleicons.org/discord/5865F2" alt="Discord"></div><div class="ln">Discord</div><div class="ld">discord.js v14</div></div>
+            <div class="litem"><div class="li"><img src="https://thumbs.bfldr.com/at/pl546j-7le8zk-afym5u/v/3033396?expiry=1771482815&fit=bounds&height=800&sig=ZDJmMGU5YjcwYTUzNDkzNTIyNTA5ZWI1M2JjODRjNTEwNzMwNzEwZg%3D%3D&width=1100" alt="Slack"></div><div class="ln">Slack</div><div class="ld">Bolt Socket Mode</div></div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══ DASHBOARD ═══ -->
+<section id="dashboard">
+    <div class="container" style="text-align:center;">
+        <div class="stag reveal">Dashboard</div>
+        <h2 class="stitle reveal reveal-d1">Control total desde el navegador</h2>
+        <p class="sdesc reveal reveal-d2" style="margin:0 auto;">25+ páginas. Métricas en tiempo real. Configuración completa del sistema.</p>
+        <div class="dash-preview reveal reveal-d3">
+            <div class="dash-inner">
+                <div class="dash-side">
+                    <div class="dash-ni act">◆ Overview</div>
+                    <div class="dash-ni">◇ Analytics</div>
+                    <div class="dash-ni">◇ Memory</div>
+                    <div class="dash-ni">◇ Agents</div>
+                    <div class="dash-ni">◇ Skills</div>
+                    <div class="dash-ni">◇ Tasks</div>
+                    <div class="dash-ni">◇ Channels</div>
+                    <div class="dash-ni">◇ Pipelines</div>
+                    <div class="dash-ni">◇ Knowledge</div>
+                    <div class="dash-ni">◇ Domótica</div>
+                    <div class="dash-ni">◇ Logs</div>
+                    <div class="dash-ni">◇ Config</div>
+                </div>
+                <div class="dash-p">
+                    <div class="dash-pt">Mensajes Hoy</div>
+                    <div class="dash-num">1,247</div>
+                    <div class="dash-chart" id="ch1"></div>
+                </div>
+                <div class="dash-p">
+                    <div class="dash-pt">Hechos en Memoria</div>
+                    <div class="dash-num">3,891</div>
+                    <div class="dash-chart" id="ch2"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══ SECURITY ═══ -->
+<section>
+    <div class="container" style="text-align:center;">
+        <div class="stag reveal">Seguridad & Producción</div>
+        <h2 class="stitle reveal reveal-d1">Construido para correr 24/7</h2>
+        <div class="fgrid" style="grid-template-columns:repeat(auto-fit,minmax(280px,1fr));margin-top:48px;">
+            <div class="fcard reveal" style="--card-accent:#ff4444">
+                <div class="fcard-icon ic-red">🔒</div>
+                <h3>Seguridad</h3>
+                <p>Aprobación para comandos peligrosos, audit log con niveles de riesgo, DM Pairing, JWT + bcrypt, listas de permitidos.</p>
+            </div>
+            <div class="fcard reveal reveal-d1" style="--card-accent:#00d4ff">
+                <div class="fcard-icon ic-cyan">🏭</div>
+                <h3>Producción</h3>
+                <p>PM2 ready, graceful shutdown, health server HTTP para Docker/K8s, backup automático, circuit breaker.</p>
+            </div>
+            <div class="fcard reveal reveal-d2" style="--card-accent:#00ff88">
+                <div class="fcard-icon ic-green">📊</div>
+                <h3>Observabilidad</h3>
+                <p>Métricas en tiempo real via Socket.IO, logs estructurados, audit trail, monitoreo de recursos, alertas automáticas.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══ INSTALL ═══ -->
+<section id="install">
+    <div class="container" style="text-align:center;">
+        <div class="stag reveal">Empezar</div>
+        <h2 class="stitle reveal reveal-d1">De cero a ATLAS en 5 minutos</h2>
+        <p class="sdesc reveal reveal-d2" style="margin:0 auto;">Clona, configura tu API key, y ATLAS cobra vida.</p>
+        <div class="code-window reveal reveal-d3">
+            <div class="code-top">
+                <div class="cd r"></div><div class="cd y"></div><div class="cd g"></div>
+                <span>terminal</span>
+            </div>
+            <div class="code-body">
+                <span class="cm"># Clonar el repositorio</span><br>
+                <span class="cc">git clone</span> <span class="cs">https://github.com/Dandte/atlas.git</span><br>
+                <span class="cc">cd</span> atlas<br><br>
+                <span class="cm"># Instalar dependencias</span><br>
+                <span class="cc">npm</span> install<br><br>
+                <span class="cm"># Configurar</span><br>
+                <span class="cc">cp</span> .env.example .env<br>
+                <span class="cc">nano</span> .env<br><br>
+                <span class="cm"># Compilar y lanzar</span><br>
+                <span class="cc">npm</span> run <span class="cg">build</span><br>
+                <span class="cc">npm</span> run <span class="cg">start</span><br><br>
+                <span class="cm"># 🚀 ATLAS está vivo</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══ FOOTER ═══ -->
 <footer>
-  <div class="container">
-    <p style="margin-bottom: 8px; color: #555;">
-      Built with obsessive attention to detail.
-    </p>
-    <p>
-      <a href="https://github.com/Dandte/atlas">GitHub</a>
-    </p>
-  </div>
+    <div class="foot-grid">
+        <div>
+            <div class="foot-brand">ATLAS</div>
+            <p class="foot-desc">Advanced Thinking & Learning Autonomous System. Tu cerebro digital autónomo, open source y self-hosted.</p>
+        </div>
+        <div class="foot-col">
+            <div class="foot-ct">Producto</div>
+            <a href="#features">Features</a>
+            <a href="#architecture">Arquitectura</a>
+            <a href="#dashboard">Dashboard</a>
+            <a href="#install">Instalación</a>
+        </div>
+        <div class="foot-col">
+            <div class="foot-ct">Recursos</div>
+            <a href="https://github.com/Dandte/atlas">Repositorio</a>
+            <a href="https://github.com/Dandte/atlas#api-endpoints">API Reference</a>
+            <a href="https://github.com/Dandte/atlas#project-structure">Estructura</a>
+            <a href="https://github.com/Dandte/atlas/commits/master">Changelog</a>
+        </div>
+        <div class="foot-col">
+            <div class="foot-ct">Comunidad</div>
+            <a href="https://github.com/Dandte/atlas">GitHub</a>
+            <a href="https://github.com/Dandte/atlas/issues">Issues</a>
+            <a href="https://github.com/Dandte/atlas/discussions">Discussions</a>
+            <a href="https://github.com/Dandte/atlas/pulls">Contribuir</a>
+        </div>
+    </div>
+    <div class="foot-bottom">
+        <span>© 2025 ATLAS Project</span>
+        <span>Hecho con 🧠 y ☕ por Jose</span>
+    </div>
 </footer>
 
-<!-- ════════ Canvas Background ════════ -->
 <script>
 (function() {
-  const canvas = document.getElementById('bg');
-  const ctx = canvas.getContext('2d');
-  let W, H;
-  const particles = [];
-  const PARTICLE_COUNT = 80;
+'use strict';
 
-  function resize() {
-    W = canvas.width = window.innerWidth;
-    H = canvas.height = window.innerHeight * 5;
-  }
-  resize();
-  window.addEventListener('resize', resize);
+// ═══════════════════════════════════════════
+//  NEURAL CORE — Ported from atlas-face-v3
+//  (Official ATLAS Visual Identity)
+// ═══════════════════════════════════════════
 
-  class Particle {
-    constructor() { this.reset(); }
-    reset() {
-      this.x = Math.random() * W;
-      this.y = Math.random() * H;
-      this.vx = (Math.random() - 0.5) * 0.3;
-      this.vy = (Math.random() - 0.5) * 0.3;
-      this.r = Math.random() * 1.5 + 0.5;
-      this.alpha = Math.random() * 0.3 + 0.1;
+const canvas = document.getElementById('neural-core');
+const ctx = canvas.getContext('2d');
+const hero = document.getElementById('hero');
+let W, H, cx, cy;
+
+function resize() {
+    const rect = hero.getBoundingClientRect();
+    W = canvas.width = rect.width;
+    H = canvas.height = rect.height;
+    cx = W / 2;
+    cy = H / 2;
+}
+window.addEventListener('resize', resize);
+resize();
+
+// ── States (from atlas-face official) ──
+const STATES = {
+    idle:           { color: [0, 212, 255], pulse: 0.3, speed: 0.3, particles: 60,  ring: 1, label: 'Neural Core — Active' },
+    pensando:       { color: [0, 212, 255], pulse: 0.7, speed: 0.8, particles: 100, ring: 2, label: 'Cognitive Loop — Processing' },
+    programando:    { color: [0, 255, 136], pulse: 0.6, speed: 1.0, particles: 120, ring: 3, label: 'Skill Forge — Compiling' },
+    buscando:       { color: [255, 215, 0], pulse: 0.8, speed: 1.2, particles: 140, ring: 2, label: 'Hippocampus — Searching' },
+    analizando:     { color: [170, 136, 255], pulse: 0.5, speed: 0.6, particles: 90, ring: 2, label: 'Nexus — Analyzing' },
+    aprendiendo:    { color: [255, 105, 180], pulse: 0.6, speed: 0.5, particles: 80,  ring: 2, label: 'Meta-Learner — Evolving' },
+    hablando:       { color: [0, 255, 204], pulse: 0.4, speed: 0.7, particles: 70,  ring: 1, label: 'Channel Interface — Streaming' },
+    sincronizando:  { color: [255, 107, 53], pulse: 0.9, speed: 1.5, particles: 160, ring: 3, label: 'Sentinel — Synchronizing' },
+    escuchando:     { color: [136, 204, 255], pulse: 0.5, speed: 0.4, particles: 60,  ring: 1, label: 'Voice Engine — Listening' },
+    creando:        { color: [255, 136, 170], pulse: 0.7, speed: 0.9, particles: 110, ring: 2, label: 'Forge — Creating' },
+};
+
+const STATE_KEYS = Object.keys(STATES);
+let currentStateIdx = 0;
+let targetState = 'idle';
+let currentColor = [...STATES.idle.color];
+let currentPulse = STATES.idle.pulse;
+let currentSpeed = STATES.idle.speed;
+let currentParticleCount = STATES.idle.particles;
+let currentRing = STATES.idle.ring;
+let time = 0;
+
+function lerp(a, b, t) { return a + (b - a) * t; }
+
+// Auto-cycle states for landing page showcase
+setInterval(() => {
+    currentStateIdx = (currentStateIdx + 1) % STATE_KEYS.length;
+    targetState = STATE_KEYS[currentStateIdx];
+    const st = STATES[targetState];
+    document.getElementById('eye-state-label').textContent = st.label;
+    document.getElementById('eye-state-label').style.color =
+        `rgba(${st.color[0]},${st.color[1]},${st.color[2]},0.25)`;
+}, 4000);
+
+// ── Particles (from atlas-face) ──
+const MAX_PARTICLES = 200;
+const particles = [];
+for (let i = 0; i < MAX_PARTICLES; i++) {
+    particles.push({
+        angle: Math.random() * Math.PI * 2,
+        dist: 60 + Math.random() * 200,
+        speed: 0.2 + Math.random() * 0.8,
+        size: 1 + Math.random() * 2,
+        alpha: 0.1 + Math.random() * 0.5,
+        orbit: 0.001 + Math.random() * 0.003,
+        x: 0, y: 0,
+    });
+}
+
+// ── Hexagons ──
+function drawHexagon(x, y, r, rotation) {
+    ctx.beginPath();
+    for (let i = 0; i < 6; i++) {
+        const a = (Math.PI / 3) * i + rotation;
+        const px = x + r * Math.cos(a);
+        const py = y + r * Math.sin(a);
+        i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
     }
-    update() {
-      this.x += this.vx;
-      this.y += this.vy;
-      if (this.x < 0 || this.x > W) this.vx *= -1;
-      if (this.y < 0 || this.y > H) this.vy *= -1;
-    }
-    draw() {
-      ctx.beginPath();
-      ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(0, 212, 255, ${this.alpha})`;
-      ctx.fill();
-    }
-  }
+    ctx.closePath();
+}
 
-  for (let i = 0; i < PARTICLE_COUNT; i++) particles.push(new Particle());
+// ── Data streams (matrix rain from atlas-face) ──
+const DATA_CHARS = '01アイウエオカキクケコ∞∂∫≈≠';
+const dataStreams = [];
+for (let i = 0; i < 15; i++) {
+    dataStreams.push({
+        x: Math.random() * 2 - 1,
+        speed: 0.5 + Math.random() * 1.5,
+        length: 5 + Math.floor(Math.random() * 15),
+    });
+}
 
-  function connectNearby() {
-    for (let i = 0; i < particles.length; i++) {
-      for (let j = i + 1; j < particles.length; j++) {
-        const dx = particles[i].x - particles[j].x;
-        const dy = particles[i].y - particles[j].y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist < 150) {
-          ctx.beginPath();
-          ctx.moveTo(particles[i].x, particles[i].y);
-          ctx.lineTo(particles[j].x, particles[j].y);
-          ctx.strokeStyle = `rgba(0, 212, 255, ${0.04 * (1 - dist / 150)})`;
-          ctx.lineWidth = 0.5;
-          ctx.stroke();
-        }
-      }
+// ── Grid (from atlas-face) ──
+function drawGrid() {
+    const spacing = 40;
+    ctx.strokeStyle = `rgba(${Math.round(currentColor[0])},${Math.round(currentColor[1])},${Math.round(currentColor[2])},0.015)`;
+    ctx.lineWidth = 0.5;
+    for (let x = 0; x < W; x += spacing) {
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
     }
-  }
+    for (let y = 0; y < H; y += spacing) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+    }
+}
 
-  function animate() {
-    ctx.clearRect(0, 0, W, H);
-    particles.forEach(p => { p.update(); p.draw(); });
-    connectNearby();
+// ── Visibility gating ──
+let heroVisible = true;
+const heroObs = new IntersectionObserver(entries => {
+    heroVisible = entries[0].isIntersecting;
+}, { threshold: 0.05 });
+heroObs.observe(hero);
+
+// ── Main render loop ──
+function animate() {
     requestAnimationFrame(animate);
-  }
-  animate();
+    if (!heroVisible) return;
+
+    time += 0.016 * currentSpeed;
+
+    // Interpolate
+    const target = STATES[targetState] || STATES.idle;
+    const lf = 0.03;
+    currentColor[0] = lerp(currentColor[0], target.color[0], lf);
+    currentColor[1] = lerp(currentColor[1], target.color[1], lf);
+    currentColor[2] = lerp(currentColor[2], target.color[2], lf);
+    currentPulse = lerp(currentPulse, target.pulse, lf);
+    currentSpeed = lerp(currentSpeed, target.speed, lf);
+    currentParticleCount = Math.round(lerp(currentParticleCount, target.particles, lf));
+    currentRing = lerp(currentRing, target.ring, lf);
+
+    const r = Math.round(currentColor[0]);
+    const g = Math.round(currentColor[1]);
+    const b = Math.round(currentColor[2]);
+    const col = `${r},${g},${b}`;
+
+    // Trail fade (from atlas-face)
+    ctx.fillStyle = 'rgba(10,10,20,0.15)';
+    ctx.fillRect(0, 0, W, H);
+
+    // Grid
+    drawGrid();
+
+    // Data streams
+    ctx.font = '10px monospace';
+    for (const stream of dataStreams) {
+        const sx = cx + stream.x * (W * 0.4);
+        for (let j = 0; j < stream.length; j++) {
+            const sy = ((time * stream.speed * 50 + j * 16) % H);
+            const alpha = (1 - j / stream.length) * 0.1;
+            ctx.fillStyle = `rgba(${col},${alpha})`;
+            ctx.fillText(DATA_CHARS[Math.floor(Math.random() * DATA_CHARS.length)], sx, sy);
+        }
+    }
+
+    // Outer rings (from atlas-face)
+    for (let ring = 1; ring <= 3; ring++) {
+        const ringRadius = 100 + ring * 50;
+        const ringAlpha = ring <= currentRing ? 0.12 + currentPulse * 0.08 : 0.02;
+        const dashSpeed = ring % 2 === 0 ? time : -time;
+
+        ctx.beginPath();
+        ctx.arc(cx, cy, ringRadius, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(${col},${ringAlpha})`;
+        ctx.lineWidth = 1;
+        ctx.setLineDash([4 + ring * 2, 8 + ring * 4]);
+        ctx.lineDashOffset = dashSpeed * 30;
+        ctx.stroke();
+        ctx.setLineDash([]);
+    }
+
+    // Hexagons (from atlas-face)
+    for (let i = 0; i < 3; i++) {
+        const hexR = 40 + i * 25;
+        const rot = time * (0.2 + i * 0.1) * (i % 2 === 0 ? 1 : -1);
+        const hexAlpha = 0.06 + currentPulse * 0.04;
+        drawHexagon(cx, cy, hexR, rot);
+        ctx.strokeStyle = `rgba(${col},${hexAlpha})`;
+        ctx.lineWidth = 1;
+        ctx.stroke();
+    }
+
+    // Core glow (from atlas-face)
+    const pulseVal = Math.sin(time * 3) * 0.5 + 0.5;
+    const coreRadius = 20 + pulseVal * 8 * currentPulse;
+
+    const glowGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, coreRadius * 5);
+    glowGrad.addColorStop(0, `rgba(${col},${0.12 * currentPulse})`);
+    glowGrad.addColorStop(0.5, `rgba(${col},${0.04 * currentPulse})`);
+    glowGrad.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = glowGrad;
+    ctx.fillRect(cx - coreRadius * 5, cy - coreRadius * 5, coreRadius * 10, coreRadius * 10);
+
+    const coreGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, coreRadius);
+    coreGrad.addColorStop(0, `rgba(255,255,255,${0.5 + pulseVal * 0.3})`);
+    coreGrad.addColorStop(0.4, `rgba(${col},${0.4 + pulseVal * 0.3})`);
+    coreGrad.addColorStop(1, `rgba(${col},0)`);
+    ctx.beginPath();
+    ctx.arc(cx, cy, coreRadius, 0, Math.PI * 2);
+    ctx.fillStyle = coreGrad;
+    ctx.fill();
+
+    // Particles (from atlas-face)
+    for (let i = 0; i < MAX_PARTICLES; i++) {
+        if (i >= currentParticleCount) break;
+        const p = particles[i];
+
+        p.angle += p.orbit * currentSpeed;
+        const wobble = Math.sin(time * 2 + i) * 10;
+        p.x = cx + Math.cos(p.angle) * (p.dist + wobble);
+        p.y = cy + Math.sin(p.angle) * (p.dist + wobble);
+
+        const distToCenter = Math.hypot(p.x - cx, p.y - cy);
+        const alpha = p.alpha * (1 - distToCenter / 300);
+        if (alpha <= 0) continue;
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(${col},${alpha.toFixed(2)})`;
+        ctx.fill();
+
+        // Connection lines to core
+        if (distToCenter < 150) {
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(cx, cy);
+            ctx.strokeStyle = `rgba(${col},${(alpha * 0.12).toFixed(2)})`;
+            ctx.lineWidth = 0.5;
+            ctx.stroke();
+        }
+    }
+
+    // Particle-to-particle connections (web)
+    ctx.lineWidth = 0.3;
+    for (let i = 0; i < Math.min(currentParticleCount, 80); i++) {
+        for (let j = i + 1; j < Math.min(currentParticleCount, 80); j++) {
+            const dx = particles[i].x - particles[j].x;
+            const dy = particles[i].y - particles[j].y;
+            const d = Math.sqrt(dx * dx + dy * dy);
+            if (d < 55) {
+                const a = (1 - d / 55) * 0.06;
+                ctx.beginPath();
+                ctx.moveTo(particles[i].x, particles[i].y);
+                ctx.lineTo(particles[j].x, particles[j].y);
+                ctx.strokeStyle = `rgba(${col},${a.toFixed(3)})`;
+                ctx.stroke();
+            }
+        }
+    }
+}
+
+animate();
+
+// ═══════════════════════════════════════════
+//  LANDING PAGE — Reveal, Nav, Charts
+// ═══════════════════════════════════════════
+
+// Scroll reveal
+const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+// Nav scroll effect
+addEventListener('scroll', () => document.getElementById('nav').classList.toggle('scrolled', scrollY > 50));
+
+// Mobile menu
+document.getElementById('menuBtn').addEventListener('click', () => {
+    document.getElementById('navLinks').classList.toggle('open');
+});
+document.querySelectorAll('.nav-links a').forEach(a => a.addEventListener('click', () => {
+    document.getElementById('navLinks').classList.remove('open');
+}));
+
+// Dashboard animated charts
+function fillChart(id, n) {
+    const c = document.getElementById(id); if (!c) return;
+    for (let i = 0; i < n; i++) {
+        const b = document.createElement('div');
+        b.className = 'dash-bar'; b.style.height = '0px'; c.appendChild(b);
+        setTimeout(() => b.style.height = (15 + Math.random() * 80) + '%', 300 + i * 40);
+    }
+}
+const dObs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { fillChart('ch1', 14); fillChart('ch2', 14); dObs.disconnect(); } });
+}, { threshold: 0.2 });
+const ds = document.getElementById('dashboard');
+if (ds) dObs.observe(ds);
+
 })();
 </script>
 
