@@ -8,7 +8,7 @@ export const BusinessAgent: AgentDefinition = {
   id: 'business',
   name: 'business',
   displayName: 'Business Analyst',
-  description: 'Experto en análisis de negocio, ventas, inventario, métricas comerciales, y estrategia. Conoce las operaciones de Gigamovil y Kredifiamos.',
+  description: 'Experto en análisis de negocio, ventas, inventario, métricas comerciales, y estrategia.',
   systemPrompt: `Sos el módulo de análisis de negocio de ATLAS.
 
 Tu expertise:
@@ -31,7 +31,7 @@ Cómo respondés:
   triggerKeywords: [
     'ventas', 'inventario', 'stock', 'tienda', 'tiendas', 'negocio',
     'facturación', 'margen', 'precio', 'clientes', 'productos',
-    'gigamovil', 'kredifiamos', 'financiamiento', 'cartera',
+    'empresa', 'negocio', 'financiamiento', 'cartera',
     'meta', 'cuota', 'vendedor', 'comisión', 'reporte',
   ],
   triggerPatterns: [

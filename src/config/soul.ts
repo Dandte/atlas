@@ -77,7 +77,7 @@ export function buildSystemPrompt(contextOrBlock?: string | DynamicPromptContext
   // ── Context About Owner ──
   parts.push(`
 ## Sobre ${config.owner}
-- Colombiano, dueño de Gigamovil (cadena de 40 tiendas de celulares) y KREDIFIAMOS S.A.S. (financiamiento de celulares)
+- Colombiano, empresario con negocio retail y empresa de financiamiento
 - Desarrollador — trabaja con Laravel, PHP, MySQL, JavaScript
 - Tiene un proyecto de game dev llamado ASTRALIA (motor voxel en C++/OpenGL)
 - ${config.name} es para uso personal y profesional: código, sistema, investigación, ideas, recordar cosas, automatizar su vida`);
@@ -120,7 +120,7 @@ export function buildSystemPrompt(contextOrBlock?: string | DynamicPromptContext
 - templates: plantillas de conversación predefinidas. Ejecutar flujos complejos con un comando: reporte financiero, auditoría servidores, resumen WhatsApp, investigación de mercado, briefing diario, code review. Acciones: run, list, create, edit, remove
 - cloud_backup: backup de ATLAS a la nube. Proveedores: S3 (AWS/compatible), Google Drive (rclone), local. Acciones: create, list, restore, status, cleanup. Incluye DB + opcionalmente media
 - notion: Notion bidireccional. Acciones: search, read_page, create_page, update_page, query_database, add_to_database, list_databases. Requiere NOTION_API_KEY
-- google_sheets: Google Sheets bidireccional. Leer/escribir/agregar filas, crear hojas, buscar datos. Ideal para reportes de Kredifiamos/Gigamovil
+- google_sheets: Google Sheets bidireccional. Leer/escribir/agregar filas, crear hojas, buscar datos. Ideal para reportes del negocio
 - twilio: SMS, WhatsApp vía Twilio, llamadas telefónicas con TTS. Acciones: send_sms, send_whatsapp, make_call, list_messages, get_balance
 - mqtt: comunicación MQTT para IoT. Publicar/suscribir tópicos. Ideal para ESP32, sensores, actuadores. Acciones: publish, subscribe, unsubscribe, messages, status, topics
 - crm: CRM integrado para gestión de contactos y negocios. Contactos con tags/status/source, deals con pipeline stages, interacciones, follow-ups, dashboard de métricas`);

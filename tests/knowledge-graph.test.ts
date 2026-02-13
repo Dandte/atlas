@@ -44,7 +44,7 @@ describe('KnowledgeGraph', () => {
     it('should list entities by type', () => {
       kg.addEntity('Jose', 'persona');
       kg.addEntity('Ana', 'persona');
-      kg.addEntity('Gigamovil', 'empresa');
+      kg.addEntity('Acme Corp', 'empresa');
 
       const personas = kg.getEntities('persona');
       expect(personas.length).toBe(2);
@@ -67,13 +67,13 @@ describe('KnowledgeGraph', () => {
   describe('Relationships', () => {
     it('should add and retrieve relationships', () => {
       kg.addEntity('Jose', 'persona');
-      kg.addEntity('Gigamovil', 'empresa');
-      kg.addRelationship('Jose', 'Gigamovil', 'es_dueño_de');
+      kg.addEntity('Acme Corp', 'empresa');
+      kg.addRelationship('Jose', 'Acme Corp', 'es_dueño_de');
 
       const rels = kg.getRelationships('Jose');
       expect(rels.length).toBe(1);
       expect(rels[0].relationship.type).toBe('es_dueño_de');
-      expect(rels[0].target.name).toBe('Gigamovil');
+      expect(rels[0].target.name).toBe('Acme Corp');
     });
 
     it('should support bidirectional relationships', () => {

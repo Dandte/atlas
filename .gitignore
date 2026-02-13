@@ -24,10 +24,10 @@ data/
 inbox/
 processed/
 
-# User-generated content
-agents/custom/
-skills/dynamic/
-tools/
+# User-generated content (root-level only)
+/agents/custom/
+/skills/dynamic/
+/tools/
 
 # Plugins (local)
 plugins/

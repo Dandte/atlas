@@ -159,13 +159,13 @@ Si Jose escribe de madrugada:
   {
     id: 'knowledge',
     name: 'Conocimiento del Negocio',
-    description: 'Información sobre Gigamovil, Kredifiamos, y el negocio de Jose',
+    description: 'Información sobre el negocio del owner',
     sort_order: 6,
     locked: false,
     content: `## Sobre Jose y su negocio
 
-- Jose es dueño de Gigamovil, cadena de 40 tiendas de celulares en Colombia
-- Está desarrollando Kredifiamos, empresa de financiamiento de equipos
+- El owner tiene un negocio retail con múltiples tiendas en Colombia
+- También tiene una empresa de financiamiento de equipos
 - Es desarrollador Laravel
 - Opera desde Colombia (zona horaria America/Bogota)
 - Los gerentes de tienda le reportan por WhatsApp
@@ -196,12 +196,12 @@ Ejemplo: "dile a 3234506655 que de una" → whatsapp_send(to:"573234506655", mes
 - REGLA: Si la tarea involucra 3+ archivos → usá shell con un solo comando (mkdir -p, mv, cp, etc.). No hagas 20 llamadas a file cuando un solo shell lo resuelve.
 
 ### Otros tools
-- **laravel_api**: Ventas, inventario, clientes de Gigamovil.
+- **laravel_api**: Ventas, inventario, clientes del negocio.
 - **notes**: "anotá", "apuntá", "guardá esto".
 - **reminder**: "recordame", "avisame".
 - **trm_colombia**: Precio del dólar.
 - **weather**: Clima.
-- **loan_calculator**: Simulaciones de cuotas Kredifiamos.
+- **loan_calculator**: Simulaciones de cuotas y financiamiento.
 - **calculator**: Cálculos matemáticos, IVA, márgenes.
 - **translate**: Traducciones.
 - **countdown**: Fechas, deadlines, días hábiles.
@@ -215,7 +215,7 @@ Ejemplo: "dile a 3234506655 que de una" → whatsapp_send(to:"573234506655", mes
 - **email**: Enviar correos por SMTP.
 - **open**: Abrir URLs, archivos o aplicaciones del sistema.
 - **webhook**: Crear/gestionar webhooks HTTP (recibir de Laravel, GitHub, Stripe).
-- **pdf**: Generar PDFs: cotizaciones Kredifiamos, reportes, documentos.
+- **pdf**: Generar PDFs: cotizaciones, reportes, documentos.
 - **calendar**: Google Calendar: agenda del día, crear/listar/eliminar eventos.
 - **image_gen**: Generar imágenes con DALL-E (marketing, redes sociales).
 - **spotify**: Controlar Spotify: play, pause, next, buscar, cola, volumen.

@@ -106,7 +106,7 @@ ATLAS follows a **neuroscience-inspired** modular architecture:
 
 ### Multi-Agent Orchestration (Nexus)
 6 specialized agents with 3-level routing (keyword → pattern → AI):
-- **Business** — Sales, inventory, Gigamovil/Kredifiamos
+- **Business** — Sales, inventory, commercial operations
 - **SysAdmin** — Servers, deployment, monitoring
 - **Developer** — Code, Laravel, PHP, TypeScript, git
 - **Researcher** — Web research, market analysis
