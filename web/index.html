@@ -1,0 +1,1199 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>ATLAS — Neural Interface</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    @font-face {
+      font-family: 'Orbitron';
+      src: local('Orbitron');
+    }
+
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #0a0a14;
+      color: #eee;
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* ── Canvas ── */
+    #main {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: 1;
+    }
+
+    /* ── Status Bar (top) ── */
+    #status-bar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 10;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 20px;
+      background: linear-gradient(180deg, rgba(10,10,20,0.9) 0%, transparent 100%);
+      pointer-events: none;
+    }
+    #status-bar .logo {
+      font-family: 'Orbitron', 'Courier New', monospace;
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: 3px;
+      color: #00d4ff;
+      text-shadow: 0 0 10px rgba(0,212,255,0.5);
+    }
+    #status-bar .state-label {
+      font-size: 0.75rem;
+      color: #888;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+    #status-bar .metrics {
+      font-size: 0.65rem;
+      color: #555;
+      font-family: monospace;
+    }
+    .connection-dot {
+      display: inline-block;
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: #555;
+      margin-right: 6px;
+      transition: background 0.3s;
+      vertical-align: middle;
+    }
+    .connection-dot.connected { background: #00ff88; box-shadow: 0 0 6px #00ff88; }
+
+    /* ── Chat Area (bottom) ── */
+    #chat-area {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      max-height: 55vh;
+      transition: max-height 0.3s;
+    }
+
+    #chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 0;
+      transition: max-height 0.4s ease;
+      background: linear-gradient(0deg, rgba(10,10,20,0.92) 0%, rgba(10,10,20,0.7) 80%, transparent 100%);
+    }
+    #chat-messages.expanded {
+      max-height: 35vh;
+    }
+    #chat-messages::-webkit-scrollbar { width: 4px; }
+    #chat-messages::-webkit-scrollbar-track { background: transparent; }
+    #chat-messages::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
+
+    .msg {
+      max-width: 75%;
+      padding: 8px 12px;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      line-height: 1.5;
+      word-wrap: break-word;
+      animation: msgIn 0.25s ease;
+    }
+    @keyframes msgIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .msg.user {
+      align-self: flex-end;
+      background: rgba(0,100,180,0.4);
+      border: 1px solid rgba(0,150,255,0.2);
+      color: #eee;
+      border-bottom-right-radius: 3px;
+    }
+    .msg.assistant {
+      align-self: flex-start;
+      background: rgba(20,20,40,0.8);
+      border: 1px solid rgba(255,255,255,0.06);
+      color: #ccc;
+      border-bottom-left-radius: 3px;
+    }
+    .msg.assistant pre {
+      background: rgba(0,0,0,0.4);
+      padding: 6px 8px;
+      border-radius: 5px;
+      overflow-x: auto;
+      margin: 4px 0;
+      font-size: 0.8rem;
+    }
+    .msg.assistant code {
+      font-family: 'Cascadia Code', 'Fira Code', monospace;
+      font-size: 0.8rem;
+    }
+    .msg.assistant code:not(pre code) {
+      background: rgba(0,0,0,0.3);
+      padding: 1px 4px;
+      border-radius: 3px;
+    }
+    .msg .meta {
+      font-size: 0.6rem;
+      color: #555;
+      margin-top: 3px;
+    }
+    .msg .transcription {
+      font-size: 0.7rem;
+      color: #88aacc;
+      font-style: italic;
+      margin-bottom: 4px;
+    }
+
+    /* Typing indicator */
+    .typing-indicator {
+      display: none;
+      align-self: flex-start;
+      padding: 8px 14px;
+      background: rgba(20,20,40,0.8);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 10px;
+      border-bottom-left-radius: 3px;
+      gap: 4px;
+      align-items: center;
+    }
+    .typing-indicator.visible { display: flex; }
+    .typing-indicator span {
+      font-size: 0.75rem;
+      color: #666;
+      margin-right: 6px;
+    }
+    .typing-dot {
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: #00d4ff;
+      animation: typingBounce 1.2s infinite;
+    }
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes typingBounce {
+      0%, 60%, 100% { transform: translateY(0); opacity: 0.3; }
+      30% { transform: translateY(-5px); opacity: 1; }
+    }
+
+    /* ── Input Bar ── */
+    #input-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px 14px;
+      background: rgba(10,10,20,0.95);
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+
+    /* Wave bars container */
+    #wave-bars {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      height: 28px;
+      padding: 0 4px;
+      opacity: 0.3;
+      transition: opacity 0.3s;
+    }
+    #wave-bars.active { opacity: 1; }
+    .wave-bar {
+      width: 3px;
+      height: 4px;
+      background: #00d4ff;
+      border-radius: 1px;
+      transition: height 0.05s;
+    }
+
+    #input-bar textarea {
+      flex: 1;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      padding: 8px 12px;
+      color: #eee;
+      font-family: system-ui;
+      font-size: 0.85rem;
+      resize: none;
+      min-height: 36px;
+      max-height: 100px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    #input-bar textarea:focus { border-color: rgba(0,212,255,0.4); }
+    #input-bar textarea::placeholder { color: #444; }
+
+    /* Mic button */
+    .mic-btn {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.05);
+      color: #888;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s;
+      flex-shrink: 0;
+    }
+    .mic-btn:hover { border-color: rgba(0,212,255,0.3); color: #00d4ff; }
+    .mic-btn.recording {
+      background: rgba(255,50,50,0.2);
+      border-color: rgba(255,50,50,0.5);
+      color: #ff4444;
+      animation: micPulse 1.5s ease-in-out infinite;
+    }
+    .mic-btn.hidden { display: none; }
+    @keyframes micPulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(255,50,50,0.3); }
+      50% { box-shadow: 0 0 12px 4px rgba(255,50,50,0.15); }
+    }
+
+    /* Send button */
+    .send-btn {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      border: none;
+      background: #00d4ff;
+      color: #0a0a14;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: opacity 0.2s;
+      flex-shrink: 0;
+    }
+    .send-btn:hover { opacity: 0.85; }
+    .send-btn:disabled { opacity: 0.3; cursor: default; }
+
+    /* ── Approval Overlay ── */
+    #approval-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      z-index: 100;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(4px);
+      justify-content: center;
+      align-items: center;
+    }
+    #approval-overlay.visible { display: flex; }
+    .approval-box {
+      background: #12122a;
+      border: 1px solid rgba(0,212,255,0.2);
+      border-radius: 12px;
+      padding: 24px;
+      max-width: 400px;
+      width: 90%;
+      text-align: center;
+    }
+    .approval-box h3 {
+      color: #ffaa00;
+      font-size: 0.95rem;
+      margin-bottom: 12px;
+    }
+    .approval-box .tool-name {
+      font-family: 'Cascadia Code', monospace;
+      color: #00d4ff;
+      font-size: 0.85rem;
+      margin-bottom: 6px;
+    }
+    .approval-box .tool-desc {
+      color: #888;
+      font-size: 0.8rem;
+      margin-bottom: 16px;
+    }
+    .approval-btns {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+    }
+    .approval-btns button {
+      padding: 8px 20px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: opacity 0.2s;
+    }
+    .approval-btns button:hover { opacity: 0.85; }
+    .btn-approve { background: #00ff88; color: #0a0a14; }
+    .btn-deny { background: #ff4444; color: #fff; }
+
+    /* ── Side Panel ── */
+    #side-panel {
+      position: fixed;
+      top: 50px; left: 0;
+      z-index: 10;
+      width: 180px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      pointer-events: none;
+      opacity: 0.8;
+      transition: opacity 0.3s;
+    }
+    #side-panel:hover { opacity: 1; pointer-events: auto; }
+    .panel-section h4 {
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: #555;
+      margin-bottom: 6px;
+    }
+    .indicator {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.65rem;
+      color: #444;
+      padding: 2px 0;
+      transition: all 0.4s;
+    }
+    .indicator.active {
+      color: #eee;
+    }
+    .indicator .dot {
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: #333;
+      transition: all 0.4s;
+      flex-shrink: 0;
+    }
+    .indicator.active .dot {
+      background: var(--dot-color, #00d4ff);
+      box-shadow: 0 0 6px var(--dot-color, #00d4ff);
+    }
+
+    /* ── PWA Install ── */
+    #pwa-install {
+      display: none;
+      position: fixed;
+      bottom: 80px; right: 16px;
+      z-index: 20;
+      background: rgba(0,212,255,0.15);
+      border: 1px solid rgba(0,212,255,0.3);
+      border-radius: 10px;
+      padding: 10px 16px;
+      color: #00d4ff;
+      font-size: 0.75rem;
+      cursor: pointer;
+      pointer-events: auto;
+    }
+    #pwa-install:hover { background: rgba(0,212,255,0.25); }
+
+    /* ── Responsive ── */
+    @media (max-width: 600px) {
+      .msg { max-width: 90%; }
+      #status-bar { padding: 8px 14px; }
+      #side-panel { display: none; }
+    }
+  </style>
+  <link rel="manifest" href="/manifest.json">
+</head>
+<body>
+  <canvas id="main"></canvas>
+
+  <!-- Status Bar -->
+  <div id="status-bar">
+    <div style="display:flex;align-items:center;gap:12px">
+      <span class="logo">ATLAS</span>
+      <span class="connection-dot" id="connDot"></span>
+      <span class="state-label" id="stateLabel">IDLE</span>
+    </div>
+    <span class="metrics" id="metricsLabel"></span>
+  </div>
+
+  <!-- Side Panel -->
+  <div id="side-panel">
+    <div class="panel-section">
+      <h4>Operacion</h4>
+      <div class="indicator" data-op="pensando"><div class="dot" style="--dot-color:#00d4ff"></div>Pensando</div>
+      <div class="indicator" data-op="programando"><div class="dot" style="--dot-color:#00ff88"></div>Programando</div>
+      <div class="indicator" data-op="buscando"><div class="dot" style="--dot-color:#ffd700"></div>Buscando</div>
+      <div class="indicator" data-op="analizando"><div class="dot" style="--dot-color:#aa88ff"></div>Analizando</div>
+      <div class="indicator" data-op="aprendiendo"><div class="dot" style="--dot-color:#ff69b4"></div>Aprendiendo</div>
+      <div class="indicator" data-op="hablando"><div class="dot" style="--dot-color:#00ffcc"></div>Hablando</div>
+      <div class="indicator" data-op="sincronizando"><div class="dot" style="--dot-color:#ff6b35"></div>Sincronizando</div>
+      <div class="indicator" data-op="escuchando"><div class="dot" style="--dot-color:#88ccff"></div>Escuchando</div>
+      <div class="indicator" data-op="creando"><div class="dot" style="--dot-color:#ff88aa"></div>Creando</div>
+      <div class="indicator" data-op="protegiendo"><div class="dot" style="--dot-color:#ff4444"></div>Protegiendo</div>
+    </div>
+    <div class="panel-section">
+      <h4>Emocion</h4>
+      <div class="indicator" data-emo="contento"><div class="dot" style="--dot-color:#00ff88"></div>Contento</div>
+      <div class="indicator" data-emo="orgulloso"><div class="dot" style="--dot-color:#ffd700"></div>Orgulloso</div>
+      <div class="indicator" data-emo="motivado"><div class="dot" style="--dot-color:#ff6b35"></div>Motivado</div>
+      <div class="indicator" data-emo="neutral"><div class="dot" style="--dot-color:#00d4ff"></div>Neutral</div>
+      <div class="indicator" data-emo="aburrido"><div class="dot" style="--dot-color:#8888aa"></div>Aburrido</div>
+      <div class="indicator" data-emo="preocupado"><div class="dot" style="--dot-color:#ffaa00"></div>Preocupado</div>
+      <div class="indicator" data-emo="frustrado"><div class="dot" style="--dot-color:#ff4444"></div>Frustrado</div>
+      <div class="indicator" data-emo="alerta"><div class="dot" style="--dot-color:#ff0000"></div>Alerta</div>
+    </div>
+  </div>
+
+  <!-- PWA Install -->
+  <div id="pwa-install" onclick="installPWA()">Instalar ATLAS</div>
+
+  <!-- Chat Area -->
+  <div id="chat-area">
+    <div id="chat-messages">
+      <div class="typing-indicator" id="typingIndicator">
+        <span>ATLAS</span>
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+      </div>
+    </div>
+    <div id="input-bar">
+      <div id="wave-bars"></div>
+      <textarea id="chatInput" rows="1" placeholder="Escribe un mensaje..."></textarea>
+      <button class="mic-btn hidden" id="micBtn" title="Grabar voz">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+          <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+          <line x1="12" y1="19" x2="12" y2="23"/>
+          <line x1="8" y1="23" x2="16" y2="23"/>
+        </svg>
+      </button>
+      <button class="send-btn" id="sendBtn" title="Enviar">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Approval Overlay -->
+  <div id="approval-overlay">
+    <div class="approval-box">
+      <h3>Aprobacion requerida</h3>
+      <div class="tool-name" id="approvalTool"></div>
+      <div class="tool-desc" id="approvalDesc"></div>
+      <div class="approval-btns">
+        <button class="btn-approve" id="approveBtn">Aprobar</button>
+        <button class="btn-deny" id="denyBtn">Denegar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+  <script>
+  (function() {
+    'use strict';
+
+    // ═══════════════════════════════════════
+    //  CANVAS — Neural Core Animation
+    // ═══════════════════════════════════════
+
+    const canvas = document.getElementById('main');
+    const ctx = canvas.getContext('2d');
+    let W, H, cx, cy;
+
+    function resize() {
+      W = canvas.width = window.innerWidth;
+      H = canvas.height = window.innerHeight;
+      cx = W / 2;
+      cy = H / 2;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    // ── States ──
+    const STATES = {
+      // Operation states
+      idle:           { color: [0, 212, 255], pulse: 0.3, speed: 0.3, particles: 60,  ring: 1, label: 'IDLE' },
+      pensando:       { color: [0, 212, 255], pulse: 0.7, speed: 0.8, particles: 100, ring: 2, label: 'PENSANDO' },
+      programando:    { color: [0, 255, 136], pulse: 0.6, speed: 1.0, particles: 120, ring: 3, label: 'PROGRAMANDO' },
+      buscando:       { color: [255, 215, 0], pulse: 0.8, speed: 1.2, particles: 140, ring: 2, label: 'BUSCANDO' },
+      analizando:     { color: [170, 136, 255], pulse: 0.5, speed: 0.6, particles: 90, ring: 2, label: 'ANALIZANDO' },
+      aprendiendo:    { color: [255, 105, 180], pulse: 0.6, speed: 0.5, particles: 80,  ring: 2, label: 'APRENDIENDO' },
+      hablando:       { color: [0, 255, 204], pulse: 0.4, speed: 0.7, particles: 70,  ring: 1, label: 'HABLANDO' },
+      sincronizando:  { color: [255, 107, 53], pulse: 0.9, speed: 1.5, particles: 160, ring: 3, label: 'SINCRONIZANDO' },
+      escuchando:     { color: [136, 204, 255], pulse: 0.5, speed: 0.4, particles: 60,  ring: 1, label: 'ESCUCHANDO' },
+      creando:        { color: [255, 136, 170], pulse: 0.7, speed: 0.9, particles: 110, ring: 2, label: 'CREANDO' },
+      protegiendo:    { color: [255, 68, 68],  pulse: 1.0, speed: 2.0, particles: 180, ring: 3, label: 'PROTEGIENDO' },
+      // Emotion states
+      contento:       { color: [0, 255, 136], pulse: 0.4, speed: 0.5, particles: 80,  ring: 1, label: 'CONTENTO' },
+      orgulloso:      { color: [255, 215, 0], pulse: 0.5, speed: 0.6, particles: 90,  ring: 2, label: 'ORGULLOSO' },
+      motivado:       { color: [255, 107, 53], pulse: 0.6, speed: 0.8, particles: 100, ring: 2, label: 'MOTIVADO' },
+      neutral:        { color: [0, 212, 255], pulse: 0.3, speed: 0.3, particles: 60,  ring: 1, label: 'NEUTRAL' },
+      aburrido:       { color: [136, 136, 170], pulse: 0.2, speed: 0.2, particles: 40,  ring: 1, label: 'ABURRIDO' },
+      'extrañando':   { color: [255, 105, 180], pulse: 0.5, speed: 0.4, particles: 70,  ring: 1, label: 'EXTRAÑANDO' },
+      preocupado:     { color: [255, 170, 0], pulse: 0.6, speed: 0.7, particles: 90,  ring: 2, label: 'PREOCUPADO' },
+      cansado:        { color: [102, 102, 136], pulse: 0.2, speed: 0.15,particles: 30,  ring: 1, label: 'CANSADO' },
+      frustrado:      { color: [255, 68, 68],  pulse: 0.8, speed: 1.0, particles: 120, ring: 2, label: 'FRUSTRADO' },
+      alerta:         { color: [255, 0, 0],    pulse: 1.0, speed: 1.5, particles: 150, ring: 3, label: 'ALERTA' },
+    };
+
+    let currentState = 'idle';
+    let targetState = 'idle';
+    let currentColor = [...STATES.idle.color];
+    let currentPulse = STATES.idle.pulse;
+    let currentSpeed = STATES.idle.speed;
+    let currentParticleCount = STATES.idle.particles;
+    let currentRing = STATES.idle.ring;
+    let time = 0;
+
+    function lerp(a, b, t) { return a + (b - a) * t; }
+
+    // ── Particles ──
+    const MAX_PARTICLES = 200;
+    const particles = [];
+    for (let i = 0; i < MAX_PARTICLES; i++) {
+      particles.push(createParticle());
+    }
+
+    function createParticle() {
+      const angle = Math.random() * Math.PI * 2;
+      const dist = 60 + Math.random() * 200;
+      return {
+        x: 0, y: 0,
+        angle, dist,
+        speed: 0.2 + Math.random() * 0.8,
+        size: 1 + Math.random() * 2,
+        alpha: 0.1 + Math.random() * 0.5,
+        orbit: 0.001 + Math.random() * 0.003,
+      };
+    }
+
+    // ── Hexagons ──
+    function drawHexagon(x, y, r, rotation) {
+      ctx.beginPath();
+      for (let i = 0; i < 6; i++) {
+        const a = (Math.PI / 3) * i + rotation;
+        const px = x + r * Math.cos(a);
+        const py = y + r * Math.sin(a);
+        i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+      }
+      ctx.closePath();
+    }
+
+    // ── Data characters (matrix rain) ──
+    const DATA_CHARS = '01アイウエオカキクケコ∞∂∫≈≠';
+    const dataStreams = [];
+    for (let i = 0; i < 15; i++) {
+      dataStreams.push({
+        x: Math.random() * 2 - 1,
+        chars: [],
+        speed: 0.5 + Math.random() * 1.5,
+        length: 5 + Math.floor(Math.random() * 15),
+      });
+    }
+
+    // ── Grid ──
+    function drawGrid() {
+      const spacing = 40;
+      ctx.strokeStyle = `rgba(${currentColor.join(',')},0.02)`;
+      ctx.lineWidth = 0.5;
+      for (let x = 0; x < W; x += spacing) {
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+      }
+      for (let y = 0; y < H; y += spacing) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+      }
+    }
+
+    // ── Main animation loop ──
+    let lastFrameTime = 0;
+    let fps = 0;
+
+    function animate(timestamp) {
+      const dt = timestamp - lastFrameTime;
+      if (dt > 0) fps = lerp(fps, 1000 / dt, 0.1);
+      lastFrameTime = timestamp;
+      time += 0.016 * currentSpeed;
+
+      // Interpolate state
+      const target = STATES[targetState] || STATES.idle;
+      const lerpFactor = 0.03;
+      currentColor[0] = lerp(currentColor[0], target.color[0], lerpFactor);
+      currentColor[1] = lerp(currentColor[1], target.color[1], lerpFactor);
+      currentColor[2] = lerp(currentColor[2], target.color[2], lerpFactor);
+      currentPulse = lerp(currentPulse, target.pulse, lerpFactor);
+      currentSpeed = lerp(currentSpeed, target.speed, lerpFactor);
+      currentParticleCount = Math.round(lerp(currentParticleCount, target.particles, lerpFactor));
+      currentRing = lerp(currentRing, target.ring, lerpFactor);
+
+      const r = Math.round(currentColor[0]);
+      const g = Math.round(currentColor[1]);
+      const b = Math.round(currentColor[2]);
+      const colStr = `${r},${g},${b}`;
+
+      // Clear
+      ctx.fillStyle = 'rgba(10,10,20,0.15)';
+      ctx.fillRect(0, 0, W, H);
+
+      // Grid
+      drawGrid();
+
+      // Data streams
+      ctx.font = '10px monospace';
+      for (const stream of dataStreams) {
+        const sx = cx + stream.x * (W * 0.4);
+        for (let j = 0; j < stream.length; j++) {
+          const sy = ((time * stream.speed * 50 + j * 16) % H);
+          const alpha = (1 - j / stream.length) * 0.12;
+          ctx.fillStyle = `rgba(${colStr},${alpha})`;
+          ctx.fillText(DATA_CHARS[Math.floor(Math.random() * DATA_CHARS.length)], sx, sy);
+        }
+      }
+
+      // Outer rings
+      for (let ring = 1; ring <= 3; ring++) {
+        const ringRadius = 100 + ring * 50;
+        const ringAlpha = ring <= currentRing ? 0.15 + currentPulse * 0.1 : 0.03;
+        const dashSpeed = ring % 2 === 0 ? time : -time;
+
+        ctx.beginPath();
+        ctx.arc(cx, cy, ringRadius, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(${colStr},${ringAlpha})`;
+        ctx.lineWidth = 1;
+        ctx.setLineDash([4 + ring * 2, 8 + ring * 4]);
+        ctx.lineDashOffset = dashSpeed * 30;
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
+
+      // Hexagons
+      for (let i = 0; i < 3; i++) {
+        const hexR = 40 + i * 25;
+        const rot = time * (0.2 + i * 0.1) * (i % 2 === 0 ? 1 : -1);
+        const hexAlpha = 0.08 + currentPulse * 0.05;
+        drawHexagon(cx, cy, hexR, rot);
+        ctx.strokeStyle = `rgba(${colStr},${hexAlpha})`;
+        ctx.lineWidth = 1;
+        ctx.stroke();
+      }
+
+      // Core glow
+      const pulseVal = Math.sin(time * 3) * 0.5 + 0.5;
+      const coreRadius = 20 + pulseVal * 8 * currentPulse;
+
+      const glowGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, coreRadius * 5);
+      glowGrad.addColorStop(0, `rgba(${colStr},${0.15 * currentPulse})`);
+      glowGrad.addColorStop(0.5, `rgba(${colStr},${0.05 * currentPulse})`);
+      glowGrad.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = glowGrad;
+      ctx.fillRect(cx - coreRadius * 5, cy - coreRadius * 5, coreRadius * 10, coreRadius * 10);
+
+      const coreGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, coreRadius);
+      coreGrad.addColorStop(0, `rgba(255,255,255,${0.6 + pulseVal * 0.3})`);
+      coreGrad.addColorStop(0.4, `rgba(${colStr},${0.5 + pulseVal * 0.3})`);
+      coreGrad.addColorStop(1, `rgba(${colStr},0)`);
+      ctx.beginPath();
+      ctx.arc(cx, cy, coreRadius, 0, Math.PI * 2);
+      ctx.fillStyle = coreGrad;
+      ctx.fill();
+
+      // Particles
+      for (let i = 0; i < MAX_PARTICLES; i++) {
+        const p = particles[i];
+        const visible = i < currentParticleCount;
+        if (!visible) continue;
+
+        p.angle += p.orbit * currentSpeed;
+        const wobble = Math.sin(time * 2 + i) * 10;
+        p.x = cx + Math.cos(p.angle) * (p.dist + wobble);
+        p.y = cy + Math.sin(p.angle) * (p.dist + wobble);
+
+        const distToCenter = Math.hypot(p.x - cx, p.y - cy);
+        const alpha = p.alpha * (1 - distToCenter / 300);
+        if (alpha <= 0) continue;
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(${colStr},${alpha.toFixed(2)})`;
+        ctx.fill();
+
+        // Connection lines
+        if (distToCenter < 150) {
+          ctx.beginPath();
+          ctx.moveTo(p.x, p.y);
+          ctx.lineTo(cx, cy);
+          ctx.strokeStyle = `rgba(${colStr},${(alpha * 0.15).toFixed(2)})`;
+          ctx.lineWidth = 0.5;
+          ctx.stroke();
+        }
+      }
+
+      // FPS
+      document.getElementById('metricsLabel').textContent =
+        `${Math.round(fps)} FPS · ${currentParticleCount} particles`;
+
+      requestAnimationFrame(animate);
+    }
+    requestAnimationFrame(animate);
+
+    // ═══════════════════════════════════════
+    //  STATE MANAGEMENT
+    // ═══════════════════════════════════════
+
+    let currentOperation = 'idle';
+    let currentEmotion = 'neutral';
+
+    function setOperationState(key) {
+      currentOperation = key;
+      // Operation takes priority over emotion
+      targetState = key !== 'idle' ? key : currentEmotion;
+      const state = STATES[targetState] || STATES.idle;
+      document.getElementById('stateLabel').textContent = state.label;
+      // Update side panel indicators
+      document.querySelectorAll('[data-op]').forEach(el => {
+        el.classList.toggle('active', el.dataset.op === key);
+      });
+    }
+
+    function setEmotionalState(emotion) {
+      currentEmotion = emotion;
+      // Only update canvas if not in an active operation
+      if (currentOperation === 'idle') {
+        targetState = emotion;
+        const state = STATES[emotion] || STATES.neutral;
+        document.getElementById('stateLabel').textContent = state.label;
+      }
+      // Update side panel indicators
+      document.querySelectorAll('[data-emo]').forEach(el => {
+        el.classList.toggle('active', el.dataset.emo === emotion);
+      });
+    }
+
+    // Tool → operation state mapping
+    const TOOL_STATE_MAP = {
+      web_search: 'buscando', web_fetch: 'buscando',
+      shell: 'programando', file_read: 'programando', file_write: 'programando', file_list: 'programando', git: 'programando',
+      memory_save: 'aprendiendo', memory_recall: 'aprendiendo',
+      notifications: 'hablando', whatsapp: 'hablando', whatsapp_send: 'hablando',
+      database_query: 'sincronizando', laravel_api: 'sincronizando',
+      doc_search: 'analizando', knowledge_graph: 'analizando', summarize_url: 'analizando',
+      domotica: 'sincronizando', n8n: 'sincronizando',
+      voice_stt: 'escuchando', tts: 'hablando',
+      forge_skill: 'creando',
+      screenshot: 'analizando',
+      erp: 'sincronizando',
+      browser_agent: 'buscando',
+    };
+
+    function toolToOperation(toolName) {
+      if (TOOL_STATE_MAP[toolName]) return TOOL_STATE_MAP[toolName];
+      if (toolName.startsWith('api_') || toolName.startsWith('db_')) return 'sincronizando';
+      if (toolName.startsWith('mcp_')) return 'analizando';
+      return 'pensando';
+    }
+
+    // ═══════════════════════════════════════
+    //  SOCKET.IO — Connection
+    // ═══════════════════════════════════════
+
+    const socket = io();
+    const connDot = document.getElementById('connDot');
+    const chatMessages = document.getElementById('chat-messages');
+    const typingIndicator = document.getElementById('typingIndicator');
+    const chatInput = document.getElementById('chatInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const micBtn = document.getElementById('micBtn');
+    const waveBars = document.getElementById('wave-bars');
+    const approvalOverlay = document.getElementById('approval-overlay');
+    let pendingApprovalId = null;
+    let chatExpanded = false;
+
+    // Create wave bars
+    const NUM_BARS = 16;
+    for (let i = 0; i < NUM_BARS; i++) {
+      const bar = document.createElement('div');
+      bar.className = 'wave-bar';
+      waveBars.appendChild(bar);
+    }
+    const barEls = waveBars.querySelectorAll('.wave-bar');
+
+    // Connection
+    socket.on('connect', () => {
+      connDot.classList.add('connected');
+    });
+    socket.on('disconnect', () => {
+      connDot.classList.remove('connected');
+    });
+
+    // Config (voice availability)
+    socket.on('config', (data) => {
+      if (data.voiceEnabled) {
+        micBtn.classList.remove('hidden');
+      }
+    });
+
+    // Typing indicator
+    socket.on('typing', (isTyping) => {
+      typingIndicator.classList.toggle('visible', isTyping);
+      if (isTyping) {
+        setOperationState('pensando');
+        expandChat();
+        scrollChat();
+      }
+    });
+
+    // Operation state from backend
+    socket.on('operation_state', (data) => {
+      if (data.state === 'idle') {
+        setOperationState('idle');
+      } else {
+        const mapped = toolToOperation(data.state);
+        setOperationState(mapped);
+      }
+    });
+
+    // Emotional state from backend
+    socket.on('emotional_state', (state) => {
+      if (state && state.current) {
+        setEmotionalState(state.current);
+      }
+    });
+
+    // Response
+    socket.on('response', (data) => {
+      typingIndicator.classList.remove('visible');
+      setOperationState('idle');
+
+      const msgDiv = document.createElement('div');
+      msgDiv.className = 'msg assistant';
+
+      // If voice transcription, show it
+      if (data.transcription) {
+        const trDiv = document.createElement('div');
+        trDiv.className = 'transcription';
+        trDiv.textContent = '🎤 ' + data.transcription;
+        msgDiv.appendChild(trDiv);
+      }
+
+      const textDiv = document.createElement('div');
+      textDiv.innerHTML = renderMarkdown(data.text || '');
+      msgDiv.appendChild(textDiv);
+
+      // Metadata
+      if (data.model || data.processingTime || data.toolsUsed) {
+        const metaDiv = document.createElement('div');
+        metaDiv.className = 'meta';
+        const parts = [];
+        if (data.model) parts.push((data.model.split('/').pop() || data.model));
+        if (data.tokens) parts.push((data.tokens.input + data.tokens.output).toLocaleString() + ' tok');
+        if (data.processingTime) parts.push((data.processingTime / 1000).toFixed(1) + 's');
+        if (data.toolsUsed && data.toolsUsed.length) parts.push(data.toolsUsed.join(', '));
+        metaDiv.textContent = parts.join(' · ');
+        msgDiv.appendChild(metaDiv);
+      }
+
+      chatMessages.insertBefore(msgDiv, typingIndicator);
+      sendBtn.disabled = false;
+      chatInput.focus();
+      scrollChat();
+
+      // Play audio response if available
+      if (data.audioResponse && data.audioResponse.base64) {
+        try {
+          const audioBlob = base64ToBlob(data.audioResponse.base64, data.audioResponse.mimeType || 'audio/mp3');
+          const audioUrl = URL.createObjectURL(audioBlob);
+          const audio = new Audio(audioUrl);
+          audio.play().catch(() => {});
+          audio.onended = () => URL.revokeObjectURL(audioUrl);
+        } catch(e) {}
+      }
+    });
+
+    // Approval
+    socket.on('approval_request', (data) => {
+      pendingApprovalId = data.id;
+      document.getElementById('approvalTool').textContent = data.tool;
+      document.getElementById('approvalDesc').textContent = data.description || '';
+      approvalOverlay.classList.add('visible');
+      setOperationState('protegiendo');
+    });
+    socket.on('approval_timeout', () => {
+      approvalOverlay.classList.remove('visible');
+      pendingApprovalId = null;
+    });
+
+    document.getElementById('approveBtn').addEventListener('click', () => {
+      if (pendingApprovalId) {
+        socket.emit('approval_response', { id: pendingApprovalId, approved: true });
+        approvalOverlay.classList.remove('visible');
+        setOperationState('pensando');
+        pendingApprovalId = null;
+      }
+    });
+    document.getElementById('denyBtn').addEventListener('click', () => {
+      if (pendingApprovalId) {
+        socket.emit('approval_response', { id: pendingApprovalId, approved: false });
+        approvalOverlay.classList.remove('visible');
+        setOperationState('idle');
+        pendingApprovalId = null;
+      }
+    });
+
+    // ═══════════════════════════════════════
+    //  CHAT
+    // ═══════════════════════════════════════
+
+    function expandChat() {
+      if (!chatExpanded) {
+        chatMessages.classList.add('expanded');
+        chatExpanded = true;
+      }
+    }
+
+    function scrollChat() {
+      setTimeout(() => {
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }, 50);
+    }
+
+    function sendMessage() {
+      const text = chatInput.value.trim();
+      if (!text) return;
+
+      // Add user message
+      const msgDiv = document.createElement('div');
+      msgDiv.className = 'msg user';
+      msgDiv.textContent = text;
+      chatMessages.insertBefore(msgDiv, typingIndicator);
+
+      socket.emit('message', { text });
+      chatInput.value = '';
+      chatInput.style.height = 'auto';
+      sendBtn.disabled = true;
+      expandChat();
+      scrollChat();
+    }
+
+    sendBtn.addEventListener('click', sendMessage);
+    chatInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+    chatInput.addEventListener('input', () => {
+      chatInput.style.height = 'auto';
+      chatInput.style.height = Math.min(chatInput.scrollHeight, 100) + 'px';
+    });
+
+    // Focus input expands chat
+    chatInput.addEventListener('focus', expandChat);
+
+    // ═══════════════════════════════════════
+    //  VOICE RECORDING
+    // ═══════════════════════════════════════
+
+    let mediaRecorder = null;
+    let audioChunks = [];
+    let audioContext = null;
+    let analyser = null;
+    let audioStream = null;
+    let animFrameId = null;
+
+    micBtn.addEventListener('click', () => {
+      if (mediaRecorder && mediaRecorder.state === 'recording') {
+        stopRecording();
+      } else {
+        startRecording();
+      }
+    });
+
+    async function startRecording() {
+      try {
+        audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+        // Audio analysis for wave bars
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const source = audioContext.createMediaStreamSource(audioStream);
+        analyser = audioContext.createAnalyser();
+        analyser.fftSize = 64;
+        source.connect(analyser);
+
+        // MediaRecorder
+        mediaRecorder = new MediaRecorder(audioStream, {
+          mimeType: MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
+            ? 'audio/webm;codecs=opus' : 'audio/webm'
+        });
+        audioChunks = [];
+
+        mediaRecorder.ondataavailable = (e) => {
+          if (e.data.size > 0) audioChunks.push(e.data);
+        };
+
+        mediaRecorder.onstop = () => {
+          const blob = new Blob(audioChunks, { type: mediaRecorder.mimeType });
+          sendVoiceMessage(blob, mediaRecorder.mimeType);
+        };
+
+        mediaRecorder.start();
+        micBtn.classList.add('recording');
+        waveBars.classList.add('active');
+        setOperationState('escuchando');
+
+        // Animate wave bars with real audio
+        animateWaveBars();
+      } catch (err) {
+        console.error('Mic access denied:', err);
+      }
+    }
+
+    function stopRecording() {
+      if (mediaRecorder && mediaRecorder.state === 'recording') {
+        mediaRecorder.stop();
+      }
+      micBtn.classList.remove('recording');
+      waveBars.classList.remove('active');
+      setOperationState('pensando');
+
+      // Stop audio stream
+      if (audioStream) {
+        audioStream.getTracks().forEach(t => t.stop());
+        audioStream = null;
+      }
+      if (audioContext) {
+        audioContext.close().catch(() => {});
+        audioContext = null;
+      }
+      if (animFrameId) {
+        cancelAnimationFrame(animFrameId);
+        animFrameId = null;
+      }
+      // Reset bars
+      barEls.forEach(bar => { bar.style.height = '4px'; });
+    }
+
+    function animateWaveBars() {
+      if (!analyser) return;
+      const dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+      function step() {
+        if (!analyser) return;
+        analyser.getByteFrequencyData(dataArray);
+
+        for (let i = 0; i < NUM_BARS; i++) {
+          const dataIdx = Math.floor(i * dataArray.length / NUM_BARS);
+          const val = dataArray[dataIdx] || 0;
+          const h = Math.max(4, (val / 255) * 28);
+          barEls[i].style.height = h + 'px';
+        }
+        animFrameId = requestAnimationFrame(step);
+      }
+      step();
+    }
+
+    async function sendVoiceMessage(blob, mimeType) {
+      expandChat();
+      // Show user voice message
+      const voiceMsg = document.createElement('div');
+      voiceMsg.className = 'msg user';
+      voiceMsg.innerHTML = '<span style="opacity:0.7">🎤 Mensaje de voz...</span>';
+      chatMessages.insertBefore(voiceMsg, typingIndicator);
+      scrollChat();
+
+      typingIndicator.classList.add('visible');
+      sendBtn.disabled = true;
+
+      const arrayBuffer = await blob.arrayBuffer();
+      socket.emit('voice_message', { audio: arrayBuffer, mimeType });
+    }
+
+    // ═══════════════════════════════════════
+    //  EMOTIONAL STATE POLLING (fallback)
+    // ═══════════════════════════════════════
+
+    async function fetchEmotionalState() {
+      try {
+        const resp = await fetch('/api/emotional');
+        if (resp.ok) {
+          const state = await resp.json();
+          if (state && state.current) {
+            setEmotionalState(state.current);
+          }
+        }
+      } catch (e) {}
+    }
+
+    // Initial fetch + periodic poll
+    fetchEmotionalState();
+    setInterval(fetchEmotionalState, 30000);
+
+    // ═══════════════════════════════════════
+    //  UTILS
+    // ═══════════════════════════════════════
+
+    function renderMarkdown(text) {
+      let html = text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+
+      // Code blocks
+      html = html.replace(/```(\w*)\n?([\s\S]*?)```/g, (_, lang, code) => {
+        return '<pre><code>' + code.trim() + '</code></pre>';
+      });
+      // Inline code
+      html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+      // Bold
+      html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+      // Italic
+      html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
+      // Lists
+      html = html.replace(/^- (.+)$/gm, '<li>$1</li>');
+      html = html.replace(/(<li>.*<\/li>\n?)+/g, (match) => '<ul>' + match + '</ul>');
+      // Line breaks
+      html = html.replace(/\n/g, '<br>');
+      // Clean up br inside pre blocks
+      html = html.replace(/<pre><code>([\s\S]*?)<\/code><\/pre>/g, (_, code) => {
+        return '<pre><code>' + code.replace(/<br>/g, '\n') + '</code></pre>';
+      });
+      return html;
+    }
+
+    function base64ToBlob(base64, mimeType) {
+      const raw = atob(base64);
+      const arr = new Uint8Array(raw.length);
+      for (let i = 0; i < raw.length; i++) arr[i] = raw.charCodeAt(i);
+      return new Blob([arr], { type: mimeType });
+    }
+
+    // PWA Install prompt
+    let deferredPrompt = null;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      document.getElementById('pwa-install').style.display = 'block';
+    });
+
+    window.installPWA = async () => {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      const result = await deferredPrompt.userChoice;
+      if (result.outcome === 'accepted') {
+        document.getElementById('pwa-install').style.display = 'none';
+      }
+      deferredPrompt = null;
+    };
+
+    // Service Worker registration
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(() => {});
+    }
+
+  })();
+  </script>
+</body>
+</html>

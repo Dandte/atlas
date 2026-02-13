@@ -1,0 +1,65 @@
+# ═══════════════════════════════════════
+# ATLAS — .gitignore
+# ═══════════════════════════════════════
+
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Environment (secrets)
+.env
+.env.local
+.env.production
+
+# SQLite databases & runtime data
+data/
+*.db
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+
+# RAG document processing
+inbox/
+processed/
+
+# User-generated content
+agents/custom/
+skills/dynamic/
+tools/
+
+# Plugins (local)
+plugins/
+
+# WhatsApp session auth
+whatsapp-session*/
+
+# Logs
+logs/
+*.log
+
+# Media files
+media/
+audio/
+screenshots/
+
+# OS files
+Thumbs.db
+Desktop.ini
+.DS_Store
+._*
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Test coverage
+coverage/
+
+# Temp files
+*.tmp
+*.bak
