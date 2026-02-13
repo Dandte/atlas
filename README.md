@@ -264,7 +264,7 @@ DASHBOARD_ENABLED=true
 DASHBOARD_PORT=4000
 ```
 
-See `.env.example` for the full list of 80+ configuration options.
+See `.env.example` for the full list of 130+ configuration options.
 
 ### Run
 
@@ -277,6 +277,73 @@ npm run build && npm start
 
 # With PM2
 npm run pm2:start
+```
+
+### Web Interfaces
+
+Once running, ATLAS exposes several web interfaces (all configurable via `.env`):
+
+| Service | Default URL | Env Vars | Description |
+|---------|------------|----------|-------------|
+| **Web Chat** | `http://localhost:3000` | `WEB_ENABLED=true` `WEB_PORT=3000` | Neural interface with animated canvas, real-time chat via Socket.IO, operation/emotion indicators, voice input, PWA installable |
+| **Dashboard** | `http://localhost:4000` | `DASHBOARD_ENABLED=true` `DASHBOARD_PORT=4000` | Admin panel (React SPA) — Overview, Memory/Facts CRUD, Agents, Skills, Tasks, Logs, Config, Domotica, Analytics, Costs |
+| **Health Server** | `http://localhost:9090` | `HEALTH_SERVER_ENABLED=true` `HEALTH_SERVER_PORT=9090` | Kubernetes/PM2 probes: `/health`, `/ready`, `/live` |
+| **Webhook Server** | `http://localhost:5000` | `WEBHOOK_ENABLED=true` `WEBHOOK_PORT=5000` | Incoming webhooks from GitHub, Stripe, Laravel, n8n, etc. |
+| **MCP Server** | `http://localhost:5050` | `MCP_SERVER_ENABLED=true` `MCP_SERVER_PORT=5050` | Model Context Protocol server for external AI tool access |
+
+### Dashboard Pages
+
+The dashboard at `http://localhost:4000` includes:
+
+| Page | What it shows |
+|------|--------------|
+| **Overview** | System stats, uptime, active channels, recent activity, memory counts |
+| **Memory** | Browse/search/edit/delete facts, episodes, reflections. Knowledge graph visualization |
+| **Agents** | List all agents (built-in + custom), enable/disable, view routing stats |
+| **Skills** | Forge-created skills, enable/disable, usage stats, version history |
+| **Tasks** | Scheduled tasks (cron), enable/disable, run now, execution history |
+| **Logs** | Real-time log viewer with level filtering |
+| **Config** | Edit `.env` variables from the browser (restarts not required for most) |
+| **Domotica** | Smart home device control — toggle switches, view state, trigger scenes |
+| **Analytics** | Tool usage charts, daily activity, hourly distribution, facts over time |
+| **Costs** | AI model usage costs per provider, per day, per agent |
+| **Pipelines** | Visual pipeline builder and execution history |
+| **Channels** | Channel health status, message counts, reconnect controls |
+
+### API Endpoints
+
+The web chat server also exposes REST endpoints:
+
+```
+GET  /api/health          — Server health check
+GET  /api/stats           — Message counts, uptime, memory stats
+POST /api/chat            — Send message (REST alternative to Socket.IO)
+GET  /api/emotional       — Current emotional state (for polling)
+```
+
+The dashboard exposes a full REST API at `http://localhost:4000/api/`:
+
+```
+GET    /api/overview               — System overview
+GET    /api/memory/facts           — List facts (with search)
+POST   /api/memory/facts           — Create fact
+DELETE /api/memory/facts/:id       — Delete fact
+GET    /api/episodes               — List episodes
+GET    /api/agents                 — List agents
+POST   /api/agents/:id/toggle      — Enable/disable agent
+GET    /api/skills                 — List skills
+POST   /api/skills/:id/toggle      — Enable/disable skill
+GET    /api/tasks                  — List scheduled tasks
+POST   /api/tasks/:id/toggle       — Enable/disable task
+POST   /api/tasks/:id/run          — Run task immediately
+GET    /api/tools                  — List registered tools
+GET    /api/logs                   — Recent logs
+GET    /api/config                 — Current configuration
+PUT    /api/config                 — Update configuration
+GET    /api/analytics?days=30      — Usage analytics
+GET    /api/knowledge-graph        — Knowledge graph nodes/edges
+GET    /api/domotica/devices       — Smart home devices
+POST   /api/domotica/device/:id/command — Control device
 ```
 
 ---
