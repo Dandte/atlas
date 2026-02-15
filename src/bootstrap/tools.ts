@@ -104,6 +104,16 @@ export function registerAllTools(
     logger.info('ERP tool registered');
   }
 
+  // Claude Agent SDK (conditional)
+  if (config.claudeAgentEnabled) {
+    try {
+      const { registerClaudeAgentTools } = require('../motor/tools/claude-agents');
+      registerClaudeAgentTools(registry);
+    } catch (err: any) {
+      logger.warn('Claude Agent SDK tools not loaded', { error: err.message });
+    }
+  }
+
   // Background task
   registry.register(new BackgroundTaskTool(
     async (text: string) => {

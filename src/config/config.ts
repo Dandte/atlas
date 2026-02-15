@@ -351,6 +351,12 @@ export const config = {
   mcpServerPort: envInt('MCP_SERVER_PORT', 5050),
   mcpServers: env('MCP_SERVERS'), // JSON array of {name, url, apiKey?}
 
+  // Claude Agent SDK
+  claudeAgentEnabled: envBool('CLAUDE_AGENT_SDK_ENABLED', false),
+  claudeAgentWorkDir: env('CLAUDE_AGENT_WORK_DIR'),
+  claudeAgentModel: env('CLAUDE_AGENT_MODEL', 'claude-sonnet-4-5-20250929'),
+  claudeAgentMaxTurns: envInt('CLAUDE_AGENT_MAX_TURNS', 25),
+
   // Paths
   rootDir,
   dataDir: path.join(rootDir, 'data'),
