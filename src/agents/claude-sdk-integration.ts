@@ -216,7 +216,11 @@ export class AtlasClaudeIntegration {
     this.model = config.claudeAgentModel;
   }
 
-  /** Execute a Claude Agent SDK query with a specific agent prompt */
+  /**
+   * Execute a Claude Agent SDK query with a specific agent prompt.
+   * Auth: Uses `claude login` session (Max plan) — no API key needed.
+   * SDK options use `cwd` (not workingDirectory), `prompt` (not userPrompt).
+   */
   async runAgent(
     agentPrompt: string,
     userPrompt: string,
@@ -229,19 +233,21 @@ export class AtlasClaudeIntegration {
     const messages: any[] = [];
 
     try {
+      // SDK query() signature: query({ prompt, options })
+      // Auth comes from `claude login` (Max plan) — stored in ~/.claude/
       const options: Record<string, any> = {
         systemPrompt,
         allowedTools,
-        workingDirectory: workDir || this.workingDir,
+        cwd: workDir || this.workingDir,
         maxTurns: this.maxTurns,
+        permissionMode: 'default',
       };
 
-      // If model is explicitly set, pass it
       if (this.model) {
         options.model = this.model;
       }
 
-      for await (const msg of queryFn(userPrompt, options)) {
+      for await (const msg of queryFn({ prompt: userPrompt, options })) {
         messages.push(msg);
 
         // Log progress
